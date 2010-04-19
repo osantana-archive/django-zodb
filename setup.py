@@ -6,29 +6,46 @@
 # See COPYING for license
 #
 
+import os
 
-from distutils.core import setup
+from setuptools import setup, find_packages
+
+from django_zodb.version import __version__
+
+long_description = file(
+    os.path.join(
+        os.path.dirname(__file__),
+            'README.rst'
+        )
+).read()
 
 setup(
     name='django-zodb',
-    version='0.1',
+    version=__version__,
     description='Using Django and ZODB together',
+    long_description=long_description,
     author='Osvaldo Santana Neto',
     author_email='osantana@triveos.com',
-    url='http://github.com/osantana/django-zodb',
+    license="BSD",
+    url='http://triveos.github.com/django-zodb/',
+    download_url='http://github.com/triveos/django-zodb/tarball/master',
     package_dir={'django_zodb': 'django_zodb'},
-    packages=[
-        'django_zodb',
-        'django_zodb.management',
-        'django_zodb.management.commands'
+    packages=find_packages(exclude=['tests']),
+    install_requires=[
+        'ZODB3>=3.9.3',
+        'repoze.zodbconn>=0.10',
+        'Django>=1.1.1',
     ],
     classifiers=[
         'Environment :: Web Environment',
+        'Development Status :: 4 - Beta',
         'Framework :: Django',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Utilities'
+        'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 )
+

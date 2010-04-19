@@ -1,5 +1,6 @@
 include CHANGELOG
 include COPYING
 include MANIFEST.in
-include README.markdown
+include README.rst
 include AUTHORS
+recursive-include tests *
