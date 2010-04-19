@@ -5,4 +5,4 @@
 # Copyright (c) 2009, Triveos Tecnologia Ltda.
 # See COPYING for license
 #
-# Empty file just to make Django happy (and enable management command).
+# Empty file just to make Django happy (and run the tests).
