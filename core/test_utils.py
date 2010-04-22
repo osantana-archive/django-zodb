@@ -17,26 +17,26 @@ class URIParseTests(TestCase):
         self._t("sc", scheme='sc')
         self._t("sc:", scheme='sc')
         self._t("sc://", scheme='sc')
-        self._t("sc:host", scheme='sc', hostname='host')
-        self._t("sc://host", scheme='sc', hostname='host')
+        self._t("sc:host", scheme='sc', host='host')
+        self._t("sc://host", scheme='sc', host='host')
         self._t("sc://user@", scheme='sc', username='user')
-        self._t("sc://user@host", scheme='sc', username='user', hostname='host')
+        self._t("sc://user@host", scheme='sc', username='user', host='host')
         self._t("sc://user:pass@host", scheme='sc', username='user', password='pass',
-                    hostname='host')
+                    host='host')
         self._t("sc://user:pass@host:1234", scheme='sc', username='user', password='pass',
-                    hostname='host', port=1234)
+                    host='host', port=1234)
         self._t("sc://user:pass@host:1234/", scheme='sc', username='user', password='pass',
-                    hostname='host', port=1234, path='/')
+                    host='host', port=1234, path='/')
         self._t("sc://user:pass@host:1234/path", scheme='sc', username='user', password='pass',
-                    hostname='host', port=1234, path='/path')
+                    host='host', port=1234, path='/path')
         self._t("sc://user:pass@host/path", scheme='sc', username='user', password='pass',
-                    hostname='host', path='/path')
+                    host='host', path='/path')
         self._t("sc://user:pass@host///path", scheme='sc', username='user', password='pass',
-                    hostname='host', path='///path')
+                    host='host', path='///path')
         self._t("sc://user:pass@host/path/", scheme='sc', username='user', password='pass',
-                    hostname='host', path='/path/')
+                    host='host', path='/path/')
         self._t("file:///foo", scheme='file', path="/foo")
-        self._t("file://foo/bar", scheme='file', hostname="foo", path="/bar")
+        self._t("file://foo/bar", scheme='file', host="foo", path="/bar")
         self._t("file:///foo@bar&baz&qux.quxx/bla:ble", scheme='file', path="/foo@bar&baz&qux.quxx/bla:ble")
         self._t("file:///foo@bar&baz&qux.quxx?bla=ble&bli", scheme='file', path="/foo@bar&baz&qux.quxx",
                     query={'bla': ['ble'], 'bli': ['']})
@@ -51,7 +51,7 @@ class URIParseTests(TestCase):
                     scheme='sc',
                     username='u',
                     password='p',
-                    hostname='h',
+                    host='h',
                     port=1,
                     path='/x',
                     query={'a': ['b']}
@@ -59,7 +59,7 @@ class URIParseTests(TestCase):
         self._t("sc://u@h:1/x?a=b",
                     scheme='sc',
                     username='u',
-                    hostname='h',
+                    host='h',
                     port=1,
                     path='/x',
                     query={'a': ['b']}
@@ -73,7 +73,7 @@ class URIParseTests(TestCase):
                     )
         self._t("sc://h:1/x?a=b",
                     scheme='sc',
-                    hostname='h',
+                    host='h',
                     port=1,
                     path='/x',
                     query={'a': ['b']}
