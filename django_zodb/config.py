@@ -23,7 +23,7 @@ class Configuration(object):
         self.db_settings = self._get_db_settings(self.storage_settings)
 
     def _parse_uri(self, uri):
-        settings = parse_uri(uri, local_schemes=('file', 'zconfig'))
+        settings = parse_uri(uri)
         if 'query' in settings:
             query = settings.pop('query')
             for key, values in query.items():
