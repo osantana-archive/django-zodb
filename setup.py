@@ -36,6 +36,10 @@ setup(
         'repoze.zodbconn>=0.10',
         'Django>=1.1.1',
     ],
+    extras_require={
+        'MySQL': ['mysql-python'],
+        'PostgreSQL': ['psycopg2'],
+    },
     classifiers=[
         'Environment :: Web Environment',
         'Development Status :: 4 - Beta',

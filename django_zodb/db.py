@@ -6,19 +6,25 @@
 # See COPYING for license
 #
 
-from django_zodb.resolvers import get_resolver
+from django_zodb.config import get_configuration_from_uri
+from django_zodb.storage import get_storage
 
-def open_database_from_uri(uri):
-    scheme, netloc, path, _, query, _ = urlparse(uri)
+from ZODB.DB import DB
 
-    print "Scheme: %s Netloc: %s Path: %s Query: %s " % \
-            (scheme, netloc, path, query)
 
-    resolver = get_resolver(scheme)
-    return resolver(netloc, path, query)
+class Database(object):
+    def __init__(self, zodb_db):
+        self.zodb_db = zodb_db
+
+
+def get_database_from_uri(uri):
+    config = get_configuration_from_uri(uri)
+    storage = get_storage(config.storage_settings)
+    zodb_db = DB(storage, config.db_settings)
+    return Database(zodb_db)
 
 def open_database(database, test=False):
-    pass
+    pass # TODO
 
 
 
