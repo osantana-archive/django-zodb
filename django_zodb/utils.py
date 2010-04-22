@@ -40,12 +40,12 @@ def parse_uri(uri):
                 elif has_username:
                     key = 'username'
                 else:
-                    key = 'hostname'
+                    key = 'host'
                 continue
             elif key == 'username':
                 key, buf = _push(ret, key, buf, 'password')
                 continue
-            elif key == 'hostname':
+            elif key == 'host':
                 key, buf = _push(ret, key, buf, 'port')
                 continue
 
@@ -57,7 +57,7 @@ def parse_uri(uri):
                 if has_username:
                     key = 'username'
                 else:
-                    key = 'hostname'
+                    key = 'host'
                 continue
 
             if key not in ['path', 'query']:
@@ -65,7 +65,7 @@ def parse_uri(uri):
 
         if ch == "@":
             if key in ['username', 'password']:
-                key, buf = _push(ret, key, buf, 'hostname')
+                key, buf = _push(ret, key, buf, 'host')
                 continue
 
         if ch == "?":
