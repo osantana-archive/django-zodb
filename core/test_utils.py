@@ -36,11 +36,11 @@ class URIParseTests(TestCase):
         self._t("sc://user:pass@host/path/", scheme='sc', username='user', password='pass',
                     hostname='host', path='/path/')
         self._t("file:///foo", scheme='file', path="/foo")
-        self._t("file://foo/bar", scheme='file', path="foo/bar")
-        self._t("file://foo@bar&baz&qux.quxx/bla:ble", scheme='file', path="foo@bar&baz&qux.quxx/bla:ble")
-        self._t("file://foo@bar&baz&qux.quxx?bla=ble&bli", scheme='file', path="foo@bar&baz&qux.quxx",
+        self._t("file://foo/bar", scheme='file', hostname="foo", path="/bar")
+        self._t("file:///foo@bar&baz&qux.quxx/bla:ble", scheme='file', path="/foo@bar&baz&qux.quxx/bla:ble")
+        self._t("file:///foo@bar&baz&qux.quxx?bla=ble&bli", scheme='file', path="/foo@bar&baz&qux.quxx",
                     query={'bla': ['ble'], 'bli': ['']})
-        self._t("file://foo#bar/baz#frag", scheme="file", path="foo#bar/baz", frag="frag")
+        self._t("file:///foo#bar/baz#frag", scheme="file", path="/foo#bar/baz", frag="frag")
 
         self._t("sc?foo", scheme='sc', query={"foo": ['']})
         self._t("sc:?foo", scheme='sc', query={"foo": ['']})

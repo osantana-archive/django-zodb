@@ -12,9 +12,9 @@ from urlparse import parse_qs
 
 _URI_CACHE = {}
 
-def parse_uri(uri, local_schemes=('file',)):
-    if (uri, local_schemes) in _URI_CACHE:
-        return _URI_CACHE[(uri, local_schemes)]
+def parse_uri(uri):
+    if uri in _URI_CACHE:
+        return _URI_CACHE[uri]
 
     def _push(ret, key, buf, next_key=None):
         if not buf:
@@ -54,9 +54,7 @@ def parse_uri(uri, local_schemes=('file',)):
                 key = 'dslash2'
                 continue
             if key == 'dslash2':
-                if ret['scheme'] in local_schemes:
-                    key = 'path'
-                elif has_username:
+                if has_username:
                     key = 'username'
                 else:
                     key = 'hostname'
@@ -75,10 +73,6 @@ def parse_uri(uri, local_schemes=('file',)):
                 key, buf = _push(ret, key, buf, 'query')
                 continue
 
-        # if ch == "#"
-        #     key, buf = _push(ret, key, buf, 'frag')
-        #     continue
-
         buf.append(ch)
 
     # append remaining chars in buffer
@@ -91,5 +85,5 @@ def parse_uri(uri, local_schemes=('file',)):
     if 'query' in ret:
         ret['query'] = parse_qs(ret['query'], keep_blank_values=True)
 
-    _URI_CACHE[(uri, local_schemes)] = ret
+    _URI_CACHE[uri] = ret
     return ret
