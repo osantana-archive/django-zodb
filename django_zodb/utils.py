@@ -24,7 +24,7 @@ def parse_uri(uri):
 
     ret = {}
     has_dslash = "://" in uri
-    has_username = bool(re.search(':(//)?[a-z0-9-]+:?@', uri))
+    has_user = bool(re.search(':(//)?[a-z0-9-]+:?@', uri))
     if "#" in uri:
         uri, frag = uri.rsplit("#", 1)
         ret['frag'] = frag
@@ -37,12 +37,12 @@ def parse_uri(uri):
                 key, buf = _push(ret, key, buf)
                 if has_dslash:
                     key = 'dslash1'
-                elif has_username:
-                    key = 'username'
+                elif has_user:
+                    key = 'user'
                 else:
                     key = 'host'
                 continue
-            elif key == 'username':
+            elif key == 'user':
                 key, buf = _push(ret, key, buf, 'password')
                 continue
             elif key == 'host':
@@ -54,8 +54,8 @@ def parse_uri(uri):
                 key = 'dslash2'
                 continue
             if key == 'dslash2':
-                if has_username:
-                    key = 'username'
+                if has_user:
+                    key = 'user'
                 else:
                     key = 'host'
                 continue
@@ -64,7 +64,7 @@ def parse_uri(uri):
                 key, buf = _push(ret, key, buf, 'path')
 
         if ch == "@":
-            if key in ['username', 'password']:
+            if key in ['user', 'password']:
                 key, buf = _push(ret, key, buf, 'host')
                 continue
 

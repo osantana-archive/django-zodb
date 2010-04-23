@@ -11,11 +11,15 @@ from django_zodb.storage import get_storage
 
 from ZODB.DB import DB
 
+class DatabaseError(Exception):
+    pass
 
 class Database(object):
     def __init__(self, zodb_db):
         self.zodb_db = zodb_db
 
+    def close(self):
+        pass
 
 def get_database_from_uri(uri):
     config = get_configuration_from_uri(uri)
@@ -23,10 +27,18 @@ def get_database_from_uri(uri):
     zodb_db = DB(storage, config.db_settings)
     return Database(zodb_db)
 
-def open_database(database, test=False):
-    pass # TODO
+def get_database(name, uri='default'):
+    from django.conf import settings
+    if not hasattr(settings, 'ZODB') or not settings.ZODB:
+        raise DatabaseError("Missing 'settings.ZODB' configuration (or empty).")
 
+    try:
+        db = get_database_from_uri(settings.ZODB[name][uri])
+    except KeyError:
+        raise DatabaseError(
+                "There is no database '%s.%s' defined in settings.ZODB" % (name, uri))
 
+    return db
 
 # Recycle Bin
 # ===========

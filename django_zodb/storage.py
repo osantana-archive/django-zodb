@@ -21,21 +21,27 @@ def parse_bool(value):
         return value.lower() not in [ 'no', 'n', 'false', '0' ]
 
 class StorageFactory(object):
+    _common_args = (
+        ('query.demostorage', parse_bool, 'demostorage', False),
+        ('query.blobstorage_dir', str, 'base_directory', ""),
+        ('query.blobstorage_layout', str, 'layout', "automatic"),
+    )
     _args = (
         # uri_arg_name, type_, storage_arg_name, (optional)default
     )
     def __init__(self, settings):
-        self.settings = self._sanitize_settings(settings)
+        self.common_settings = self._get_common_settings(settings)
+        self.settings = self._get_settings(settings)
+
         self.storage_stack = [
             self.get_base_storage,
             self.get_demo_storage,
             self.get_blob_storage,
         ]
 
-    def _sanitize_settings(self, settings):
+    def _sanitize_settings(self, settings, args):
         ret = {}
-
-        for record in self._args:
+        for record in args:
             if len(record) > 3:
                 key, type_, arg, default = record
                 required = False
@@ -47,25 +53,32 @@ class StorageFactory(object):
                 ret[arg] = type_(settings[key])
             except (KeyError, ValueError, TypeError):
                 if required:
-                    raise TypeError("Missing or invalid argument '%s'" % (key,))
+                    raise TypeError("Missing argument '%s'" % (key,))
                 ret[arg] = default
+
         return ret
 
+    def _get_common_settings(self, settings):
+        return self._sanitize_settings(settings, self._common_args)
+
+    def _get_settings(self, settings):
+        return self._sanitize_settings(settings, self._args)
+
     def get_base_storage(self, base_storage):
-        raise NotImplemented("Abstract class")
+        raise NotImplemented("Abstract class") # pragma: no cover abstract method code
 
     def get_demo_storage(self, base_storage):
-        if not self.settings.get('demostorage', False):
+        if not self.common_settings['demostorage']:
             return base_storage
         return DemoStorage(base=base_storage)
 
     def get_blob_storage(self, base_storage):
-        blob_dir = self.settings.get('blobstorage_dir', '')
-        if not blob_dir:
+        base_directory = self.common_settings['base_directory']
+        if not base_directory:
             return base_storage
 
-        blob_layout = self.settings.get('blobstorage_layout', 'automatic')
-        return BlobStorage(blob_dir, base_storage, blob_layout)
+        layout = self.common_settings['layout']
+        return BlobStorage(base_directory, base_storage, layout)
 
     def get_storage(self, base_storage=None):
         storage = base_storage
@@ -89,7 +102,12 @@ class FileFactory(StorageFactory):
         return FileStorage(**self.settings)
 
 class ZEOFactory(StorageFactory):
-    pass
+    _args = (
+        # uri_arg_name, type_, storage_arg_name, (optional)default
+        ('host', str, 'host', None),
+        ('port', str, 'port', None),
+        ('path', str, 'path', None),
+    )
 
 class ZConfigFactory(StorageFactory):
     pass

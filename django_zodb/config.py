@@ -10,14 +10,13 @@
 from django_zodb.utils import parse_uri
 
 
-DATABASE_SETTINGS = (
-    # key, type, default
-    ('database_name', str, 'unnamed'),
-    ('connection_cache_size', int, 10000),
-    ('connection_pool_size', int, 7),
-)
-
 class Configuration(object):
+    _db_settings = (
+        # key, type, arg, default
+        ('query.database_name', str, 'name', 'unnamed'),
+        ('query.connection_cache_size', int, 'cache_size', 10000),
+        ('query.connection_pool_size', int, 'pool_size', 7),
+    )
     def __init__(self, uri):
         self.storage_settings = self._parse_uri(uri)
         self.db_settings = self._get_db_settings(self.storage_settings)
@@ -36,11 +35,11 @@ class Configuration(object):
 
     def _get_db_settings(self, settings):
         ret = {}
-        for key, type_, default in DATABASE_SETTINGS:
+        for key, type_, arg_name, default in self._db_settings:
             if key in settings:
-                ret[key] = type_(settings.pop(key))
+                ret[arg_name] = type_(settings.pop(key))
             else:
-                ret[key] = default
+                ret[arg_name] = default
         return ret
 
 def get_configuration_from_uri(uri):
