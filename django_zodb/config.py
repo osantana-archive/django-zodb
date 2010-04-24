@@ -11,36 +11,48 @@ from django_zodb.utils import parse_uri
 
 
 class Configuration(object):
-    _db_settings = (
-        # key, type, arg, default
-        ('query.database_name', str, 'name', 'unnamed'),
-        ('query.connection_cache_size', int, 'cache_size', 10000),
-        ('query.connection_pool_size', int, 'pool_size', 7),
-    )
     def __init__(self, uri):
-        self.storage_settings = self._parse_uri(uri)
-        self.db_settings = self._get_db_settings(self.storage_settings)
+        self.configuration = self._parse_uri(uri)
 
     def _parse_uri(self, uri):
-        settings = parse_uri(uri)
-        if 'query' in settings:
-            query = settings.pop('query')
-            for key, values in query.items():
-                value = values[-1] # only last argument
-                if value == '':    # ?arg1&arg2&...
-                    settings['query.' + key] = '1'
-                else:
-                    settings['query.' + key] = value
-        return settings
-
-    def _get_db_settings(self, settings):
-        ret = {}
-        for key, type_, arg_name, default in self._db_settings:
-            if key in settings:
-                ret[arg_name] = type_(settings.pop(key))
+        config = parse_uri(uri)
+        query = config.pop('query', {})
+        for key, values in query.items():
+            if key in config:
+                raise ValueError("Cannot override '%s' argument." % (key,))
+            value = values[-1] # only last argument
+            if value == '':    # ?arg1&arg2&...
+                config[key] = '1'
             else:
-                ret[arg_name] = default
+                config[key] = value
+        return config
+
+    # (uri_arg_name, type_, storage_arg_name, optional_default)
+    def get_settings(self, args):
+        ret = {}
+
+        for record in args:
+            if len(record) > 3:
+                key, type_, arg, default = record
+                required = False
+            else:
+                key, type_, arg = record
+                required = True
+
+            try:
+                ret[arg] = type_(self.configuration.pop(key))
+            except (KeyError, ValueError, TypeError):
+                if required:
+                    raise TypeError("Missing argument '%s'" % (key,))
+                ret[arg] = default
+
         return ret
+
+    def pop(self, key, default=None):
+        return self.configuration.pop(key, default)
+
+    def get(self, key, default=None):
+        return self.configuration.get(key, default)
 
 def get_configuration_from_uri(uri):
     return Configuration(uri)

@@ -7,10 +7,10 @@
 #
 
 import os
-import shutil
 
 from django.test import TestCase
 
+from testutils.tools import remove_db_files, start_zeo
 
 class StorageTests(TestCase):
     def test_fail_unknown_scheme(self):
@@ -29,26 +29,13 @@ class StorageTests(TestCase):
         self.assertEquals(storage.__class__.__name__, "DemoStorage")
         storage.close()
 
-    def _remove_files(self):
-        filelist = (
-            '/tmp/test.db',
-            '/tmp/test.db.lock',
-            '/tmp/test.db.index',
-            '/tmp/test.db.tmp',
-            '/tmp/blobdir',
-        )
-        for filename in filelist:
-            if os.path.isdir(filename):
-                shutil.rmtree(filename)
-            if os.path.exists(filename):
-                os.remove(filename)
-
     def test_file_storage(self):
         from django_zodb.storage import get_storage_from_uri
         storage = get_storage_from_uri("file:///tmp/test.db")
         self.assertEquals(storage.__class__.__name__, "FileStorage")
+        self.assertRaises(TypeError, lambda: storage.fshelper.temp_dir)
         storage.close()
-        self._remove_files()
+        remove_db_files()
 
     def test_fail_file_storage_with_invalid_arguments_1(self):
         from django_zodb.storage import get_storage_from_uri
@@ -56,12 +43,18 @@ class StorageTests(TestCase):
 
     def test_fail_file_storage_with_invalid_arguments_2(self):
         from django_zodb.storage import get_storage_from_uri
-        self.assertRaises(TypeError, get_storage_from_uri, "file://?error")
+        self.assertRaises(TypeError, get_storage_from_uri, "file://?error=1")
+
+    def test_fail_file_storage_with_invalid_arguments_3(self):
+        from django_zodb.storage import get_storage_from_uri
+        self.assertRaises(ValueError, get_storage_from_uri, "file:///foo/bar?path=error")
 
     def test_file_storage_with_blob(self):
         from django_zodb.storage import get_storage_from_uri
         storage = get_storage_from_uri("file:///tmp/test.db?blobstorage_dir=/tmp/blobdir&blobstorage_layout=bushy")
         self.assertEquals(storage.__class__.__name__, "FileStorage")
+        self.assertEquals(storage.getName(), "/tmp/test.db")
+        self.assertEquals(storage.fshelper.temp_dir, "/tmp/blobdir/tmp")
         storage.close()
 
         self.assertTrue(os.path.isdir('/tmp/blobdir'))
@@ -69,4 +62,19 @@ class StorageTests(TestCase):
         self.assertTrue(os.path.exists('/tmp/blobdir/.layout'))
         self.assertEqual(open('/tmp/blobdir/.layout').read().strip(), 'bushy')
 
-        self._remove_files()
+        remove_db_files()
+
+    def test_zeo_storage_with_host(self):
+        from django_zodb.storage import get_storage_from_uri
+        zeo = start_zeo()
+        storage = get_storage_from_uri("zeo://localhost/foobar?blob_dir=/tmp/blobdir&wait=true&wait_timeout=1")
+        self.assertEquals(storage.__class__.__name__, "ClientStorage")
+        zeo.terminate()
+
+    def test_zeo_storage_with_sock(self):
+        from django_zodb.storage import get_storage_from_uri
+        zeo = start_zeo('sock')
+        storage = get_storage_from_uri("zeo:///tmp/zeo.zdsock?blob_dir=/tmp/blobdir&wait=true&wait_timeout=1")
+        self.assertEquals(storage.__class__.__name__, "ClientStorage")
+        zeo.terminate()
+
