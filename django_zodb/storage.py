@@ -6,6 +6,7 @@
 # See COPYING for license
 #
 
+
 import os
 
 
@@ -15,7 +16,6 @@ from ZODB.blob import BlobStorage
 from ZODB.FileStorage.FileStorage import FileStorage
 
 from ZEO.ClientStorage import ClientStorage
-
 
 
 from django_zodb.config import get_configuration_from_uri
@@ -99,6 +99,7 @@ class ZEOFactory(StorageFactory):
         ('blob_cache_size', int, 'blob_cache_size', None),
         ('blob_cache_size_check', int, 'blob_cache_size_check', 10),
     )
+
     def get_base_storage(self, **kwargs):
         host = kwargs.pop('host')
         port = kwargs.pop('port')
