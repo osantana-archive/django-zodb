@@ -85,4 +85,3 @@ class URIParseTests(TestCase):
         self._t("sc://:1/x?a=b", scheme='sc', port=1, path='/x', query={'a': ['b']})
         self._t("sc:///x?a=b", scheme='sc', path='/x', query={'a': ['b']})
         self._t("sc://?a=b", scheme='sc', query={'a': ['b']})
-

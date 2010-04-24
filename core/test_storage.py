@@ -61,7 +61,6 @@ class StorageTests(TestCase):
         self.assertTrue(os.path.isdir('/tmp/blobdir/tmp'))
         self.assertTrue(os.path.exists('/tmp/blobdir/.layout'))
         self.assertEqual(open('/tmp/blobdir/.layout').read().strip(), 'bushy')
-
         remove_db_files()
 
     def test_zeo_storage_with_host(self):
@@ -70,11 +69,13 @@ class StorageTests(TestCase):
         storage = get_storage_from_uri("zeo://localhost/foobar?blob_dir=/tmp/blobdir&wait=true&wait_timeout=1")
         self.assertEquals(storage.__class__.__name__, "ClientStorage")
         zeo.terminate()
+        remove_db_files()
 
     def test_zeo_storage_with_sock(self):
         from django_zodb.storage import get_storage_from_uri
         zeo = start_zeo('sock')
         storage = get_storage_from_uri("zeo:///tmp/zeo.zdsock?blob_dir=/tmp/blobdir&wait=true&wait_timeout=1")
         self.assertEquals(storage.__class__.__name__, "ClientStorage")
+        storage.close()
         zeo.terminate()
-
+        remove_db_files()
