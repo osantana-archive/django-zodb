@@ -6,28 +6,81 @@
 # See COPYING for license
 #
 
+
+from cStringIO import StringIO
+
+
 from django_zodb.config import get_configuration_from_uri
 from django_zodb.storage import get_storage
 
+
 from ZODB.DB import DB
+
+import ZConfig
+
+
 
 class DatabaseError(Exception):
     pass
 
+
 class Database(object):
-    def __init__(self, zodb_db):
-        self.zodb_db = zodb_db
+    def __init__(self, _db):
+        self._db = _db
 
     def close(self):
-        pass
+        self._db.close()
+
+
+class DatabaseFactory(object):
+    _args = (
+        ('database_name', str, 'database_name', 'unnamed'),
+        ('connection_cache_size', int, 'cache_size', 10000),
+        ('connection_pool_size', int, 'pool_size', 7),
+    )
+    _zconfig_args = (
+        ('path', str, 'path'),
+        ('frag', str, 'frag', ''),
+    )
+    _schema_xml_template = """<schema>
+        <import package="ZODB"/>
+        <multisection type="ZODB.database" attribute="databases" />
+    </schema>"""
+
+    def __init__(self, config):
+        self.config = config
+
+    def _get_database_from_zconfig(self):
+        settings = self.config.get_settings(self._zconfig_args)
+        path = settings['path']
+        frag = settings['frag']
+
+        schema = ZConfig.loadSchemaFile(StringIO(self._schema_xml_template))
+        config, _ = ZConfig.loadConfig(schema, path)
+        for database in config.databases:
+            if not frag or frag == database.name:
+                break
+        else:
+            raise DatabaseError("No database named '%s' found" % (frag,))
+
+        return Database(database.open())
+
+    def get_database(self):
+        if self.config.get('scheme') == 'zconfig':
+            return self._get_database_from_zconfig()
+
+        settings = self.config.get_settings(self._args)
+        storage = get_storage(self.config)
+        _db = DB(storage, **settings)
+        return Database(_db)
+
 
 def get_database_from_uri(uri):
     config = get_configuration_from_uri(uri)
-    storage = get_storage(config.storage_settings)
-    zodb_db = DB(storage, config.db_settings)
-    return Database(zodb_db)
+    factory = DatabaseFactory(config)
+    return factory.get_database()
 
-def get_database(name, uri='default'):
+def get_database_by_name(name, uri='default'):
     from django.conf import settings
     if not hasattr(settings, 'ZODB') or not settings.ZODB:
         raise DatabaseError("Missing 'settings.ZODB' configuration (or empty).")
@@ -35,73 +88,5 @@ def get_database(name, uri='default'):
     try:
         db = get_database_from_uri(settings.ZODB[name][uri])
     except KeyError:
-        raise DatabaseError(
-                "There is no database '%s.%s' defined in settings.ZODB" % (name, uri))
-
+        raise DatabaseError("No database '%s.%s' configuration in settings.ZODB" % (name, uri))
     return db
-
-# Recycle Bin
-# ===========
-#
-# from threading import local
-#
-# import ZODB
-# import ZODB.config
-# import transaction
-#
-#
-# __all__ = ('db',)
-#
-# class ZODBConnection(local):
-#     def __init__(self, config): #pylint:disable-msg=W0231
-#         self._db = None
-#         self._connection = None
-#         self._root = None
-#         self._commit = True
-#
-#     def open(self):
-#         self._db = ZODB.config.databaseFromURL(settings.ZODB_CONFIG_URL)
-#         self._connection = self._db.open()
-#         self._root = self._connection.root()
-#
-#     def close(self):
-#         self.rollback()
-#
-#         self._root = None
-#
-#         self._connection.close()
-#         self._connection = None
-#
-#         self._db.close()
-#         self._db = None
-#
-#     @property
-#     def root(self):
-#         if not self._root:
-#             self.open()
-#         return self._root
-#
-#     def rollback(self, *args, **kw):
-#         return transaction.abort(*args, **kw)
-#
-#     def commit(self, *args, **kw):
-#         if self._commit:
-#             return transaction.commit(*args, **kw)
-#
-#     def disable_commit(self):
-#         self._commit = False
-#
-#     def enable_commit(self):
-#         self._commit = True
-#
-#     def zap(self, confirm):
-#         if confirm != "Yes, I know what I'm doing.":
-#             return
-#
-#         for key in list(self.root):
-#             del self.root[key]
-#
-#         transaction.commit()
-#         self._db.pack()
-#
-# db = ZODBConnection(settings.ZODB_CONFIG_URL)

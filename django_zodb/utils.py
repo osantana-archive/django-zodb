@@ -10,12 +10,7 @@
 import re
 from urlparse import parse_qs
 
-_URI_CACHE = {}
-
 def parse_uri(uri):
-    if uri in _URI_CACHE:
-        return _URI_CACHE[uri]
-
     def _push(ret, key, buf, next_key=None):
         if not buf:
             return next_key or key, []
@@ -85,5 +80,4 @@ def parse_uri(uri):
     if 'query' in ret:
         ret['query'] = parse_qs(ret['query'], keep_blank_values=True)
 
-    _URI_CACHE[uri] = ret
     return ret
