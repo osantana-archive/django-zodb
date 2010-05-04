@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf}-8 -*-
 #
 # django-zodb - using Django and ZODB together
 #
@@ -9,27 +9,15 @@
 
 from cStringIO import StringIO
 
+from ZODB.DB import DB
+import ZConfig
 
 from django_zodb.config import get_configuration_from_uri
 from django_zodb.storage import get_storage
 
 
-from ZODB.DB import DB
-
-import ZConfig
-
-
-
 class DatabaseError(Exception):
     pass
-
-
-class Database(object):
-    def __init__(self, _db):
-        self._db = _db
-
-    def close(self):
-        self._db.close()
 
 
 class DatabaseFactory(object):
@@ -61,32 +49,41 @@ class DatabaseFactory(object):
             if not frag or frag == database.name:
                 break
         else:
-            raise DatabaseError("No database named '%s' found" % (frag,))
+            raise ValueError("Database %r not found." % frag)
 
-        return Database(database.open())
+        return database.open()
 
-    def get_database(self):
+    def __call__(self):
         if self.config.get('scheme') == 'zconfig':
             return self._get_database_from_zconfig()
 
         settings = self.config.get_settings(self._args)
         storage = get_storage(self.config)
-        _db = DB(storage, **settings)
-        return Database(_db)
+        return DB(storage, **settings)
 
+def get_database_from_uris(uris):
+    databases = {}
+    ret = None
+    for uri in uris:
+        config = get_configuration_from_uri(uri)
+        db_factory = DatabaseFactory(config)
+        db = db_factory()
+        for name in db.databases:
+            if name in databases:
+                raise ValueError("database_name %r already in databases." % name)
+        databases.update(db.databases)
+        db.databases = databases
+        if ret is None:
+            ret = db
+    return ret
 
-def get_database_from_uri(uri):
-    config = get_configuration_from_uri(uri)
-    factory = DatabaseFactory(config)
-    return factory.get_database()
-
-def get_database_by_name(name, uri='default'):
+def get_database_by_name(name):
     from django.conf import settings
     if not hasattr(settings, 'ZODB') or not settings.ZODB:
-        raise DatabaseError("Missing 'settings.ZODB' configuration (or empty).")
+        raise ValueError("Missing or empty settings.ZODB configuration.")
 
     try:
-        db = get_database_from_uri(settings.ZODB[name][uri])
+        return get_database_from_uris(settings.ZODB[name])
     except KeyError:
-        raise DatabaseError("No database '%s.%s' configuration in settings.ZODB" % (name, uri))
-    return db
+        raise ValueError("Database %r not found in settings.ZODB." % name)
+
