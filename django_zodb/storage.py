@@ -8,7 +8,7 @@
 
 
 import os
-
+import logging
 
 from ZODB.MappingStorage import MappingStorage
 from ZODB.DemoStorage import DemoStorage
@@ -17,19 +17,25 @@ from ZODB.FileStorage.FileStorage import FileStorage
 
 from ZEO.ClientStorage import ClientStorage
 
-
 from django_zodb.config import get_configuration_from_uri
 
-MB = 1024**2
+MB = 1024 ** 2
 
 def parse_bool(value):
     if isinstance(value, basestring):
         return value.lower() not in [ 'no', 'n', 'false', '0' ]
 
+log = logging.getLogger("django_zodb.storage")
+
+FACTORIES = {}
+def register(scheme, factory_class):
+    FACTORIES[scheme] = factory_class
+
 class StorageFactory(object):
+    _args = ()
     def __init__(self, config):
-        self.settings = config.get_settings(self._args)
         self.demostorage = config.pop('demostorage', False)
+        self.config = config
 
     def _wrap_blob(self, storage, blob_dir, blob_layout):
         if blob_dir:
@@ -40,7 +46,8 @@ class StorageFactory(object):
         raise NotImplemented("Abstract class") # pragma: no cover abstract method code
 
     def get_storage(self):
-        storage = self.get_base_storage(**self.settings)
+        settings = self.config.get_settings(self._args)
+        storage = self.get_base_storage(**settings)
         if self.demostorage:
             storage = DemoStorage(base=storage)
         return storage
@@ -48,11 +55,13 @@ class StorageFactory(object):
 
 class MemoryFactory(StorageFactory):
     _args = (
-        ('blobstorage_dir', str, 'blob_dir', ""),
-        ('blobstorage_layout', str, 'blob_layout', "automatic"),
+        ('blobstorage_dir', str, 'blob_dir', ''),
+        ('blobstorage_layout', str, 'blob_layout', 'automatic'),
     )
     def get_base_storage(self, blob_dir, blob_layout):
         return self._wrap_blob(MappingStorage(), blob_dir, blob_layout)
+register("mem", MemoryFactory)
+
 
 class FileFactory(StorageFactory):
     _args = (
@@ -61,7 +70,7 @@ class FileFactory(StorageFactory):
         ('read_only', parse_bool, 'readonly', False),
         ('quota', int, 'quota', None),
         ('blobstorage_dir', str, 'blob_dir', ''),
-        ('blobstorage_layout', str, 'blob_layout', "automatic"),
+        ('blobstorage_layout', str, 'blob_layout', 'automatic'),
     )
     def get_base_storage(self, filename, create, readonly, quota, blob_dir, blob_layout):
         storage = FileStorage(
@@ -70,6 +79,8 @@ class FileFactory(StorageFactory):
                     read_only=readonly,
                     quota=quota)
         return self._wrap_blob(storage, blob_dir, blob_layout)
+register("file", FileFactory)
+
 
 class ZEOFactory(StorageFactory):
     _args = (
@@ -82,7 +93,6 @@ class ZEOFactory(StorageFactory):
         ('cache_size', int, 'cache_size', 20*MB),
         ('name', str, 'name', ''),
         ('client', str, 'client', None),
-        # ('debug', parse_bool, 'debug', 0), repoze.zodbconn but ZODB use it.
         ('var', str, 'var', None),
         ('min_disconnect_poll', int, 'min_disconnect_poll', 1),
         ('max_disconnect_poll', int, 'max_disconnect_poll', 30),
@@ -106,22 +116,26 @@ class ZEOFactory(StorageFactory):
         path = kwargs.pop('path')
         kwargs['addr'] = (host, port) if host else path
         return ClientStorage(**kwargs)
+register("zeo", ZEOFactory)
 
+try:
+    from _rdbms.mysql import MySQLFactory
+    register("mysql", MySQLFactory)
+except ImportError:
+    log.info("MySQL support disabled.")
 
-class MySQLFactory(StorageFactory):
-    pass
+try:
+    from _rdbms.postgresql import PostgreSQLFactory
+    register("postgresql", PostgreSQLFactory)
+except ImportError:
+    log.info("PostgreSQL support disabled.")
 
-class PostgreSQLFactory(StorageFactory):
-    pass
+try:
+    from _rdbms.oracle import OracleFactory
+    register("oracle", OracleFactory)
+except ImportError:
+    log.info("Oracle support disabled.")
 
-FACTORIES = {
-    'mem': MemoryFactory,
-    'memory': MemoryFactory,
-    'file': FileFactory,
-    'zeo': ZEOFactory,
-    'postgresql': PostgreSQLFactory,
-    'mysql': MySQLFactory,
-}
 
 def get_storage(config):
     try:

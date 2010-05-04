@@ -11,13 +11,13 @@ import code
 
 from django.core.management.base import NoArgsCommand
 
-from django_zodb import db
+from django_zodb.database import get_database_by_name
 
 class Command(NoArgsCommand):
-    help = "Runs a Python interactive interpreter and automatically import ZODB as db object."
+    help = "Runs a Python interactive interpreter and automatically import get_database_by_name() function."
     requires_model_validation = False
 
     def handle_noargs(self, **options):
         db.disable_commit()
-        imported_objects = {'db': db}
+        imported_objects = {'get_database_by_name': get_database_by_name}
         code.interact(local=imported_objects)
