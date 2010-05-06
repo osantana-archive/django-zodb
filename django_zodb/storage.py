@@ -17,14 +17,12 @@ from ZODB.FileStorage.FileStorage import FileStorage
 
 from ZEO.ClientStorage import ClientStorage
 
-from django_zodb.config import get_configuration_from_uri
+from django_zodb.config import get_configuration_from_uri, parse_bool, IGNORE
 
+
+
+# Utilities
 MB = 1024 ** 2
-
-def parse_bool(value):
-    if isinstance(value, basestring):
-        return value.lower() not in [ 'no', 'n', 'false', '0' ]
-
 log = logging.getLogger("django_zodb.storage")
 
 FACTORIES = {}

@@ -9,6 +9,13 @@
 
 from django_zodb.utils import parse_uri
 
+IGNORE = lambda: None
+
+def parse_bool(value):
+    return value and value.lower()[0] not in 'nf0'
+
+def parse_tuple(values):
+    return tuple(value.strip() for value in values.split(","))
 
 class Configuration(object):
     def __init__(self, uri):
@@ -21,7 +28,7 @@ class Configuration(object):
             if key in config:
                 raise ValueError("Cannot override '%s' argument." % (key,))
             value = values[-1] # only last argument
-            if value == '':    # ?arg1&arg2&...
+            if value == '':    # ?arg1&arg2&... == ?arg1=1&arg2=1&...
                 config[key] = '1'
             else:
                 config[key] = value
@@ -40,11 +47,15 @@ class Configuration(object):
                 required = True
 
             try:
-                ret[arg] = type_(self.configuration.pop(key))
-            except (KeyError, ValueError, TypeError):
+                value = self.configuration.pop(key)
+                ret[arg] = type_(value)
+            except KeyError:
                 if required:
-                    raise TypeError("Missing argument '%s'" % (key,))
-                ret[arg] = default
+                    raise TypeError("Missing argument %r" % key)
+                if default != IGNORE:
+                    ret[arg] = default
+            except (ValueError, TypeError):
+                raise TypeError("Invalid argument %r" % key)
 
         return ret
 
