@@ -39,21 +39,20 @@ def get_storage_factory(scheme):
 
 # Storage Factories
 class StorageFactory(object):
-    _args = ()
     def __init__(self, config):
         self.demostorage = config.pop('demostorage', False)
         self.config = config
 
-    def _wrap_blob(self, storage, blob_dir, blob_layout):
-        if blob_dir:
-            return BlobStorage(blob_dir, storage, blob_layout)
-        return storage
+    def _wrap_blob(self, storage, **kwargs):
+        if 'base_directory' not in kwargs:
+            return storage
+        return BlobStorage(storage=storage, **kwargs)
 
     def get_base_storage(self, *args, **kwargs):
         raise NotImplemented("Abstract class") # pragma: no cover abstract method code
 
     def get_storage(self):
-        settings = self.config.get_settings(self._args)
+        settings = self.config.get_settings(self._storage_args)
         storage = self.get_base_storage(**settings)
         if self.demostorage:
             storage = DemoStorage(base=storage)
@@ -61,41 +60,42 @@ class StorageFactory(object):
 
 
 class MemoryFactory(StorageFactory):
-    _args = (
-        ('blobstorage_dir', str, 'blob_dir', ''),
-        ('blobstorage_layout', str, 'blob_layout', 'automatic'),
+    _storage = MappingStorage
+    _storage_args = (
+        ('blobstorage_dir', str, 'base_directory', IGNORE),
+        ('blobstorage_layout', str, 'layout', IGNORE),
     )
-    def get_base_storage(self, blob_dir, blob_layout):
-        return self._wrap_blob(MappingStorage(), blob_dir, blob_layout)
+    def get_base_storage(self, **kwargs):
+        return self._wrap_blob(self._storage(), **kwargs)
 register("mem", MemoryFactory)
 
 
 class FileFactory(StorageFactory):
-    _args = (
-        ('path', os.path.normpath, 'filename'),
-        ('create', parse_bool, 'create', False),
-        ('read_only', parse_bool, 'readonly', False),
-        ('quota', int, 'quota', None),
-        ('blobstorage_dir', str, 'blob_dir', ''),
-        ('blobstorage_layout', str, 'blob_layout', 'automatic'),
+    _storage = FileStorage
+    _storage_args = (
+        ('path', os.path.normpath, 'file_name'),
+        ('create', parse_bool, 'create', IGNORE),
+        ('read_only', parse_bool, 'read_only', IGNORE),
+        ('quota', int, 'quota', IGNORE),
+        ('blobstorage_dir', str, 'base_directory', IGNORE),
+        ('blobstorage_layout', str, 'layout', IGNORE),
     )
-    def get_base_storage(self, filename, create, readonly, quota, blob_dir, blob_layout):
-        storage = FileStorage(
-                    file_name=filename,
-                    create=create,
-                    read_only=readonly,
-                    quota=quota)
-        return self._wrap_blob(storage, blob_dir, blob_layout)
+    def get_base_storage(self, **kwargs):
+        arguments = {}
+        if 'base_directory' in kwargs:
+            arguments['base_directory'] = kwargs.pop("base_directory")
+        if 'layout' in kwargs:
+            arguments['layout'] = kwargs.pop("layout")
+        arguments['storage'] = self._storage(**kwargs)
+        return self._wrap_blob(**arguments)
 register("file", FileFactory)
 
 
 class ZEOFactory(StorageFactory):
-    _args = (
-        # uri_arg_name, type_, storage_arg_name, (optional)default
+    _storage_args = (
         ('host', str, 'host', None),
         ('port', int, 'port', 8100),
         ('path', str, 'path', None),
-
         ('storage', str, 'storage', '1'),
         ('cache_size', int, 'cache_size', 20*MB),
         ('name', str, 'name', ''),
