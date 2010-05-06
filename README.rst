@@ -13,8 +13,8 @@ Installation
 
 Django-ZODB requires the following packages:
 
-* `Django`_ 1.1.1
-* `ZODB`_ 3.9.3
+* `Django`_ 1.1.1 or newer
+* `ZODB`_ 3.9.3 or newer
 
 If you need to store your data in a RDBMS system you will need to install the
 following packages too:
@@ -36,21 +36,9 @@ Or from PyPI (using easy_install)::
 Running tests
 -------------
 
-`Django-ZODB`_ uses Django standard test runner and we've split tests in X
-categories:
-
-1. ``core_tests`` — test only core functions and builtin memory-only storages.
-2. ``db_mysql_tests`` — tests that requires ``RelStorage``, ``MySQLdb`` and MySQL
-   server in localhost.
-3. ``db_psycopg2_tests`` — tests that requires ``RelStorage``, ``psycopg2`` and
-   PostgreSQL server in localhost.
-4. ``db_oracle_tests`` — tests that requires ``RelStorage``, ``cx_Oracle`` and Oracle
-   server in localhost.
-
 To run tests::
 
-    $ python manage.py test [test categories*]
-
+    $ python manage.py test
 
 Configuration
 -------------
