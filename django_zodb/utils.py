@@ -19,7 +19,7 @@ def parse_uri(uri):
 
     ret = {}
     has_dslash = "://" in uri
-    has_user = bool(re.search(':(//)?[a-z0-9-]+:?@', uri))
+    has_user = bool(re.search(':(//)?[^:@?/#&\s]+:?@', uri))
     if "#" in uri:
         uri, frag = uri.rsplit("#", 1)
         ret['frag'] = frag

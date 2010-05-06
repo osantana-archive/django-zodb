@@ -85,3 +85,11 @@ class URIParseTests(TestCase):
         self._t("sc://:1/x?a=b", scheme='sc', port=1, path='/x', query={'a': ['b']})
         self._t("sc:///x?a=b", scheme='sc', path='/x', query={'a': ['b']})
         self._t("sc://?a=b", scheme='sc', query={'a': ['b']})
+        self._t("mysql://test_user:test_pass@test_host?compress=1#test_dbname",
+            scheme="mysql",
+            user="test_user",
+            password="test_pass",
+            host="test_host",
+            query={'compress': ['1']},
+            frag="test_dbname",
+        )
