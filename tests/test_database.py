@@ -10,36 +10,13 @@
 from django.test import TestCase
 
 
-from testutils.tools import remove_db_files, start_zeo, get_tool_path, turn_off_log
+from testutils.tools import get_tool_path, turn_off_log
 
 
 turn_off_log("ZODB.FileStorage")
 turn_off_log("ZEO.zrpc")
 
-zodb_settings = {
-    'default': [
-        'mysql://user@passwd:localhost/relstorage_db?database_name=main_app',
-        'postgresql://user@passwd:pg_test:5678/app1_db',
-    ],
-    'test':      [ 'mem://', 'mem://?database_name=catalog' ],
-    'legacy_db': [ 'zconfig:///srv/www/zodb_media.conf' ],
-    'user_dir':  [
-        'zeo://main_db.intranet:7899?database_name=main',
-        'zeo://catalog.intranet:7898?database_name=catalog'
-    ],
-    'old_app':   [
-        'file:///var/lib/sitedata.db?blob_dir=/var/lib/blobstorage_dir'
-    ],
-}
-
 class DatabaseTests(TestCase):
-    def _p(self, db):
-        import pprint
-        print "XXX",; pprint.pprint(db)
-        print "YYY",; pprint.pprint(dir(db))
-        print "ZZZ", db.database_name, db.getName()
-        print "HHH", db.databases
-
     def _clean_settings(self):
         import django.conf
         if hasattr(django.conf.settings, 'ZODB'):
