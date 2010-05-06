@@ -14,16 +14,16 @@ Installation
 Django-ZODB requires the following packages:
 
 * `Django`_ 1.1.1 or newer
-* `ZODB`_ 3.9.3 or newer
+* `ZODB`_ 3.10.0a2 or newer
 
 If you need to store your data in a RDBMS system you will need to install the
 following packages too:
 
-* `RelStorage`_ — ZODB storage system that store pickles in a relational
-  database (in a non-relational format).
-* `MySQLdb`_ — required to connect `MySQL`_ database.
-* `psycopg2`_ — required to connect `PostgreSQL`_ database.
-* `cx_Oracle`_ — required to connect `Oracle`_ database.
+* `RelStorage`_ 1.4.0b3 or newer — ZODB storage system that store pickles in a
+  relational database (in a non-relational format).
+* `MySQLdb`_ 1.2.3c1 or newer — required to connect `MySQL`_ database.
+* `psycopg2`_ 2.0.14 or newer — required to connect `PostgreSQL`_ database.
+* `cx_Oracle`_ 5.0.3 or newer — required to connect `Oracle`_ database.
 
 Install from sources::
 
@@ -35,6 +35,10 @@ Or from PyPI (using easy_install)::
 
 Running tests
 -------------
+
+Install coverage_ If you need test coverage informations::
+
+    $ easy_install -U coverage
 
 To run tests::
 
@@ -239,6 +243,11 @@ You can read more about about traversal at `bfg.repoze documentation`_
 Connection Schemes
 ------------------
 
+An URI is composed of the following parts::
+
+    scheme://user:password@host:port/path?arg1=...&argN=...#fragment
+
+
 ``mem:`` (``ZODB.MappingStorage.MappingStorage``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -319,7 +328,16 @@ TODO
 ``mysql:`` (``RelStorage``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. Warning:: Not Implemented yet.
+Returns a database stored in a MySQL relational server. This scheme uses
+`RelStorage`_ to establish connection.
+
+URIs Examples::
+
+    mysql://user:password@host:3306?compress=true#mysql_db_name
+    mysql:///tmp/mysql.sock#local_database
+    mysql://localhost#database
+
+TODO
 
 ``postgresql`` (``RelStorage``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -340,6 +358,17 @@ Blob storage arguments
 
 XXX
 
+TODO
+----
+
+::
+
+    - Finish 'relstorage' drivers (+++)
+    - Implement models and views modules (++++)
+    - Finish 'samples.wiki' application (++)
+    - Update tutorial to reflect 'samples.wiki' source code (+)
+    - Add a "narrative" API reference in README.rst (or use docstrings?) (++)
+    - Create a setup.py with distribute (and pip) support (+)
 
 
 .. Opening a database
@@ -363,6 +392,7 @@ XXX
 .. _PostgreSQL: http://www.postgresql.org/
 .. _cx_Oracle: http://pypi.python.org/pypi/cx_Oracle/
 .. _Oracle: http://www.oracle.com/
+.. _coverage: http://pypi.python.org/pypi/coverage/
 .. _repoze.zodbconn: http://docs.repoze.org/zodbconn/
 .. _ZODB Tutorial: http://www.zodb.org/documentation/tutorial.html
 .. _ZODB programming guide: http://www.zodb.org/documentation/guide/index.html
