@@ -32,13 +32,22 @@ setup(
     package_dir={'django_zodb': 'django_zodb'},
     packages=find_packages(exclude=['tests']),
     install_requires=[
-        'ZODB3>=3.9.3',
-        'repoze.zodbconn>=0.10',
+        'ZODB3>=3.10.0a2',
         'Django>=1.1.1',
     ],
     extras_require={
-        'MySQL': ['mysql-python'],
-        'PostgreSQL': ['psycopg2'],
+        'MySQL': [
+            'RelStorage>=1.4.0b3',
+            'MySQL-python>=1.2.3c1',
+        ],
+        'PostgreSQL': [
+            'RelStorage>=1.4.0b3',
+            'psycopg2>=2.0.14',
+        ],
+        'Oracle': [
+            'RelStorage>=1.4.0b3',
+            'cx_Oracle>=5.0.3',
+        ],
     },
     classifiers=[
         'Environment :: Web Environment',
