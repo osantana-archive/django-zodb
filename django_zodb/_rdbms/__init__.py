@@ -6,10 +6,11 @@
 # See COPYING for license
 #
 
-from django_zodb.storage import StorageFactory, parse_bool
 
-def parse_tuple(values):
-    return tuple(value.strip() for value in values.split(","))
+from relstorage.storage import RelStorage
+
+from django_zodb.storage import StorageFactory
+from django_zodb.config import parse_bool, parse_tuple, IGNORE
 
 class RelStorageFactory(StorageFactory):
     _args = (
