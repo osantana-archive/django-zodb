@@ -1,9 +1,0 @@
-#!/Users/osantana/Work/django-zodb/bin/python
-# EASY-INSTALL-ENTRY-SCRIPT: 'ZODB3==3.10.0a1','console_scripts','runzeo'
-__requires__ = 'ZODB3==3.10.0a1'
-import sys
-from pkg_resources import load_entry_point
-
-sys.exit(
-   load_entry_point('ZODB3==3.10.0a1', 'console_scripts', 'runzeo')()
-)

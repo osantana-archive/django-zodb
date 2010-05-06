@@ -33,12 +33,11 @@ def get_tool_path(filename):
     return os.path.join(TOOLS_DIR, filename)
 
 def start_zeo(mode='host'):
-    runzeo = get_tool_path('runzeo')
     zeoconf = get_tool_path('zeo_test.conf')
     if mode == 'host':
-        args = [runzeo, '-C', zeoconf]
+        args = ["runzeo", '-C', zeoconf]
     else:
-        args = [runzeo, '-a', '/tmp/zeo.zdsock', '-C', zeoconf]
+        args = ["runzeo", '-a', '/tmp/zeo.zdsock', '-C', zeoconf]
     zeo = subprocess.Popen(args)
     return zeo
 
@@ -49,3 +48,4 @@ class _NullHandler(logging.Handler):
 
 def turn_off_log(logger):
     logging.getLogger(logger).addHandler(_NullHandler())
+
