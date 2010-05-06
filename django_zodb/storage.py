@@ -25,10 +25,19 @@ from django_zodb.config import get_configuration_from_uri, parse_bool, IGNORE
 MB = 1024 ** 2
 log = logging.getLogger("django_zodb.storage")
 
+# Storage Factories registry
 FACTORIES = {}
+
 def register(scheme, factory_class):
     FACTORIES[scheme] = factory_class
 
+def get_available_storages():
+    return FACTORIES.keys()
+
+def get_storage_factory(scheme):
+    return FACTORIES[scheme]
+
+# Storage Factories
 class StorageFactory(object):
     _args = ()
     def __init__(self, config):
@@ -138,7 +147,7 @@ except ImportError:
 def get_storage(config):
     try:
         scheme = config.pop('scheme')
-        factory = FACTORIES[scheme]
+        factory = get_storage_factory(scheme)
     except KeyError:
         raise ValueError('Invalid or Unknown scheme: %s' % (scheme,))
 
