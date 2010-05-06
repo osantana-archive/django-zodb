@@ -9,7 +9,7 @@
 
 from django_zodb.utils import parse_uri
 
-IGNORE = lambda: None
+REQUIRED = True
 
 def parse_bool(value):
     return value and value.lower()[0] not in 'nf0'
@@ -26,7 +26,7 @@ class Configuration(object):
         query = config.pop('query', {})
         for key, values in query.items():
             if key in config:
-                raise ValueError("Cannot override '%s' argument." % (key,))
+                raise ValueError("Cannot override %r argument." % key)
             value = values[-1] # only last argument
             if value == '':    # ?arg1&arg2&... == ?arg1=1&arg2=1&...
                 config[key] = '1'
@@ -34,26 +34,22 @@ class Configuration(object):
                 config[key] = value
         return config
 
-    # (uri_arg_name, type_, storage_arg_name, optional_default)
-    def get_settings(self, args):
+    # (uri_arg_name, type_, storage_arg_name, required)
+    def get_settings(self, specs):
         ret = {}
 
-        for record in args:
-            if len(record) > 3:
-                key, type_, arg, default = record
-                required = False
-            else:
-                key, type_, arg = record
-                required = True
+        for spec in specs:
 
+            if len(spec) == 3:
+                spec = spec + (not REQUIRED,)
+
+            key, type_, arg, required = spec
             try:
                 value = self.configuration.pop(key)
                 ret[arg] = type_(value)
             except KeyError:
                 if required:
                     raise TypeError("Missing argument %r" % key)
-                if default != IGNORE:
-                    ret[arg] = default
             except (ValueError, TypeError):
                 raise TypeError("Invalid argument %r" % key)
 

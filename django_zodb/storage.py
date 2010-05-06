@@ -17,30 +17,42 @@ from ZODB.FileStorage.FileStorage import FileStorage
 
 from ZEO.ClientStorage import ClientStorage
 
-from django_zodb.config import get_configuration_from_uri, parse_bool, IGNORE
-
+from django_zodb.config import get_configuration_from_uri, parse_bool, REQUIRED
 
 
 # Utilities
-MB = 1024 ** 2
 log = logging.getLogger("django_zodb.storage")
 
 # Storage Factories registry
-FACTORIES = {}
+class _FactoriesRegistry(object):
+    def __init__(self):
+        self.enabled = {}
+        self.disabled = {}
 
-def register(scheme, factory_class):
-    FACTORIES[scheme] = factory_class
+    def enable(self, scheme, factory_class):
+        self.enabled[scheme] = factory_class
 
-def get_available_storages():
-    return FACTORIES.keys()
+    def disable(self, scheme, reason):
+        self.disabled[scheme] = str(reason)
 
-def get_storage_factory(scheme):
-    return FACTORIES[scheme]
+    def available(self):
+        return self.enabled.keys()
+
+    def get(self, scheme):
+        return self.enabled[scheme]
+
+    def disable_reason(self, scheme):
+        return self.disabled[scheme]
+
+factories = _FactoriesRegistry()
+
+class StorageError(Exception):
+    pass
 
 # Storage Factories
 class StorageFactory(object):
     def __init__(self, config):
-        self.demostorage = config.pop('demostorage', False)
+        self.demostorage = parse_bool(config.pop('demostorage', "false"))
         self.config = config
 
     def _wrap_blob(self, storage, **kwargs):
@@ -62,23 +74,23 @@ class StorageFactory(object):
 class MemoryFactory(StorageFactory):
     _storage = MappingStorage
     _storage_args = (
-        ('blobstorage_dir', str, 'base_directory', IGNORE),
-        ('blobstorage_layout', str, 'layout', IGNORE),
+        ('blobstorage_dir', str, 'base_directory'),
+        ('blobstorage_layout', str, 'layout'),
     )
     def get_base_storage(self, **kwargs):
         return self._wrap_blob(self._storage(), **kwargs)
-register("mem", MemoryFactory)
+factories.enable("mem", MemoryFactory)
 
 
 class FileFactory(StorageFactory):
     _storage = FileStorage
     _storage_args = (
-        ('path', os.path.normpath, 'file_name'),
-        ('create', parse_bool, 'create', IGNORE),
-        ('read_only', parse_bool, 'read_only', IGNORE),
-        ('quota', int, 'quota', IGNORE),
-        ('blobstorage_dir', str, 'base_directory', IGNORE),
-        ('blobstorage_layout', str, 'layout', IGNORE),
+        ('path', os.path.normpath, 'file_name', REQUIRED),
+        ('create', parse_bool, 'create'),
+        ('read_only', parse_bool, 'read_only'),
+        ('quota', int, 'quota'),
+        ('blobstorage_dir', str, 'base_directory'),
+        ('blobstorage_layout', str, 'layout'),
     )
     def get_base_storage(self, **kwargs):
         arguments = {}
@@ -88,66 +100,71 @@ class FileFactory(StorageFactory):
             arguments['layout'] = kwargs.pop("layout")
         arguments['storage'] = self._storage(**kwargs)
         return self._wrap_blob(**arguments)
-register("file", FileFactory)
+factories.enable("file", FileFactory)
 
 
 class ZEOFactory(StorageFactory):
     _storage_args = (
-        ('host', str, 'host', None),
-        ('port', int, 'port', 8100),
-        ('path', str, 'path', None),
-        ('storage', str, 'storage', '1'),
-        ('cache_size', int, 'cache_size', 20*MB),
-        ('name', str, 'name', ''),
-        ('client', str, 'client', None),
-        ('var', str, 'var', None),
-        ('min_disconnect_poll', int, 'min_disconnect_poll', 1),
-        ('max_disconnect_poll', int, 'max_disconnect_poll', 30),
-        ('wait', parse_bool, 'wait', None),
-        ('wait_timeout', int, 'wait_timeout', None),
-        ('read_only', parse_bool, 'read_only', 0),
-        ('read_only_fallback', parse_bool, 'read_only_fallback', 0),
-        ('username', str, 'username', ''),
-        ('password', str, 'password', ''),
-        ('realm', str, 'realm', None),
-        ('blob_dir', str, 'blob_dir', None),
-        ('shared_blob_dir', parse_bool, 'shared_blob_dir', False),
-        ('drop_cache_rather_verify', parse_bool, 'drop_cache_rather_verify', False),
-        ('blob_cache_size', int, 'blob_cache_size', None),
-        ('blob_cache_size_check', int, 'blob_cache_size_check', 10),
+        ('host', str, 'host'),
+        ('port', int, 'port'),
+        ('path', str, 'path'),
+        ('storage', str, 'storage'),
+        ('cache_size', int, 'cache_size'),
+        ('name', str, 'name'),
+        ('client', str, 'client'),
+        ('var', str, 'var'),
+        ('min_disconnect_poll', int, 'min_disconnect_poll'),
+        ('max_disconnect_poll', int, 'max_disconnect_poll'),
+        ('wait', parse_bool, 'wait'),
+        ('wait_timeout', int, 'wait_timeout'),
+        ('read_only', parse_bool, 'read_only'),
+        ('read_only_fallback', parse_bool, 'read_only_fallback'),
+        ('username', str, 'username'),
+        ('password', str, 'password'),
+        ('realm', str, 'realm'),
+        ('blob_dir', str, 'blob_dir'),
+        ('shared_blob_dir', parse_bool, 'shared_blob_dir'),
+        ('drop_cache_rather_verify', parse_bool, 'drop_cache_rather_verify'),
+        ('blob_cache_size', int, 'blob_cache_size'),
+        ('blob_cache_size_check', int, 'blob_cache_size_check'),
     )
 
     def get_base_storage(self, **kwargs):
-        host = kwargs.pop('host')
-        port = kwargs.pop('port')
-        path = kwargs.pop('path')
-        kwargs['addr'] = (host, port) if host else path
+        host = kwargs.pop('host', None)
+        port = kwargs.pop('port', None)
+        path = kwargs.pop('path', None)
+        if host and port:
+            kwargs['addr'] = (host, port)
+        elif path:
+            kwargs['addr'] = path
+        else:
+            raise StorageError("Missing host:port address or path to socket to ZEO Server.")
         return ClientStorage(**kwargs)
-register("zeo", ZEOFactory)
+factories.enable("zeo", ZEOFactory)
+
 
 try:
-    from _rdbms.mysql import MySQLFactory
-    register("mysql", MySQLFactory)
-except ImportError:
-    log.info("MySQL support disabled.")
+    from django_zodb.relstorage.mysql import MySQLFactory
+    factories.enable("mysql", MySQLFactory)
+except ImportError, ex:
+    factories.disable("mysql", ex)
 
 try:
-    from _rdbms.postgresql import PostgreSQLFactory
-    register("postgresql", PostgreSQLFactory)
-except ImportError:
-    log.info("PostgreSQL support disabled.")
+    from django_zodb.relstorage.postgresql import PostgreSQLFactory
+    factories.enable("postgresql", PostgreSQLFactory)
+except ImportError, ex:
+    factories.disable("postgresql", ex)
 
 try:
-    from _rdbms.oracle import OracleFactory
-    register("oracle", OracleFactory)
-except ImportError:
-    log.info("Oracle support disabled.")
-
+    from django_zodb.relstorage.oracle import OracleFactory
+    factories.enable("oracle", OracleFactory)
+except ImportError, ex:
+    factories.disable("oracle", ex)
 
 def get_storage(config):
     try:
         scheme = config.pop('scheme')
-        factory = get_storage_factory(scheme)
+        factory = factories.get(scheme)
     except KeyError:
         raise ValueError('Invalid or Unknown scheme: %s' % (scheme,))
 

@@ -12,7 +12,7 @@ from cStringIO import StringIO
 from ZODB.DB import DB
 import ZConfig
 
-from django_zodb.config import get_configuration_from_uri
+from django_zodb.config import get_configuration_from_uri, REQUIRED
 from django_zodb.storage import get_storage
 
 
@@ -22,13 +22,13 @@ class DatabaseError(Exception):
 
 class DatabaseFactory(object):
     _args = (
-        ('database_name', str, 'database_name', 'unnamed'),
-        ('connection_cache_size', int, 'cache_size', 10000),
-        ('connection_pool_size', int, 'pool_size', 7),
+        ('database_name', str, 'database_name'),
+        ('connection_cache_size', int, 'cache_size'),
+        ('connection_pool_size', int, 'pool_size'),
     )
     _zconfig_args = (
-        ('path', str, 'path'),
-        ('frag', str, 'frag', ''),
+        ('path', str, 'path', REQUIRED),
+        ('frag', str, 'frag'),
     )
     _schema_xml_template = """<schema>
         <import package="ZODB"/>
@@ -40,8 +40,9 @@ class DatabaseFactory(object):
 
     def _get_database_from_zconfig(self):
         settings = self.config.get_settings(self._zconfig_args)
+
         path = settings['path']
-        frag = settings['frag']
+        frag = settings.get('frag', '')
 
         schema = ZConfig.loadSchemaFile(StringIO(self._schema_xml_template))
         config, _ = ZConfig.loadConfig(schema, path)
