@@ -12,7 +12,7 @@ from relstorage.options import Options
 
 from django_zodb.relstorage import RelStorageFactory
 
-# TODO: add support and tests to postgresql and oracle
+# TODO: add support and tests to oracle
 class OracleFactory(RelStorageFactory):
     _adapter = OracleAdapter
     _adapter_args = ()
