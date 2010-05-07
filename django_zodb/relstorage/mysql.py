@@ -17,11 +17,11 @@ from django_zodb.relstorage import RelStorageFactory
 class MySQLFactory(RelStorageFactory):
     _adapter = MySQLAdapter
     _adapter_args = (
+        ('host', str, 'host'),
         ('user', str, 'user'),
         ('password', str, 'passwd'),
-        ('host', str, 'host'),
-        ('port', int, 'port'),
         ('frag', str, 'db'),
+        ('port', int, 'port'),
         ('path', str, 'unix_socket'),
         ('connect_timeout', int, 'connect_timeout'),
         ('compress', parse_bool, 'compress'),
@@ -30,8 +30,8 @@ class MySQLFactory(RelStorageFactory):
         ('read_default_file', str, 'read_default_file'),
         ('read_default_group', str, 'read_default_group'),
         ('client_flag', int, 'client_flag'),
+        # ('ssl', parse_dict, 'ssl'), # TODO: dict(key="",cert="",ca="",capath="",cipher="")
         ('load_infile', int, 'load_infile'),
-        ('create', parse_bool, 'create'),
     )
 
     def get_adapter(self, options):
