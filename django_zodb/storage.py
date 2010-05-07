@@ -46,9 +46,6 @@ class _FactoriesRegistry(object):
 
 factories = _FactoriesRegistry()
 
-class StorageError(Exception):
-    pass
-
 # Storage Factories
 class StorageFactory(object):
     def __init__(self, config):
@@ -104,6 +101,7 @@ factories.enable("file", FileFactory)
 
 
 class ZEOFactory(StorageFactory):
+    _storage = ClientStorage
     _storage_args = (
         ('host', str, 'host'),
         ('port', int, 'port'),
@@ -122,7 +120,7 @@ class ZEOFactory(StorageFactory):
         ('username', str, 'username'),
         ('password', str, 'password'),
         ('realm', str, 'realm'),
-        ('blob_dir', str, 'blob_dir'),
+        ('blobstorage_dir', str, 'blob_dir'),
         ('shared_blob_dir', parse_bool, 'shared_blob_dir'),
         ('drop_cache_rather_verify', parse_bool, 'drop_cache_rather_verify'),
         ('blob_cache_size', int, 'blob_cache_size'),
@@ -131,34 +129,34 @@ class ZEOFactory(StorageFactory):
 
     def get_base_storage(self, **kwargs):
         host = kwargs.pop('host', None)
-        port = kwargs.pop('port', None)
+        port = kwargs.pop('port', 8090)
         path = kwargs.pop('path', None)
         if host and port:
             kwargs['addr'] = (host, port)
         elif path:
             kwargs['addr'] = path
         else:
-            raise StorageError("Missing host:port address or path to socket to ZEO Server.")
-        return ClientStorage(**kwargs)
+            raise ValueError("Missing host:port address or path to socket to ZEO Server.")
+        return self._storage(**kwargs)
 factories.enable("zeo", ZEOFactory)
 
 
 try:
     from django_zodb.relstorage.mysql import MySQLFactory
     factories.enable("mysql", MySQLFactory)
-except ImportError, ex:
+except ImportError, ex: # pragma: no cover
     factories.disable("mysql", ex)
 
 try:
     from django_zodb.relstorage.postgresql import PostgreSQLFactory
     factories.enable("postgresql", PostgreSQLFactory)
-except ImportError, ex:
+except ImportError, ex: # pragma: no cover
     factories.disable("postgresql", ex)
 
 try:
     from django_zodb.relstorage.oracle import OracleFactory
     factories.enable("oracle", OracleFactory)
-except ImportError, ex:
+except ImportError, ex: # pragma: no cover
     factories.disable("oracle", ex)
 
 def get_storage(config):
