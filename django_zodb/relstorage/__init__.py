@@ -38,4 +38,6 @@ class RelStorageFactory(StorageFactory):
     def get_base_storage(self, **options):
         create = options.pop("create", True) # HACK: missing in relstorage.options.Options(?)
         adapter = self.get_adapter(options)
-        return self._storage(adapter, create=create, **options)
+        options['create'] = create
+        options['adapter'] = adapter
+        return self._storage(**options)

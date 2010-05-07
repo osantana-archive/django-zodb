@@ -81,31 +81,6 @@ class StorageTests(TestCase):
         self.assertTrue(os.path.exists('/tmp/blobdir/.layout'))
         self.assertEqual(open('/tmp/blobdir/.layout').read().strip(), 'bushy')
 
-    # TODO: reenable this tests
-    # def test_zeo_storage_with_host(self):
-    #     from django_zodb.storage import get_storage_from_uri
-    #     zeo = start_zeo()
-    #     storage = get_storage_from_uri("zeo://localhost/foobar?blob_dir=/tmp/blobdir&wait=true&wait_timeout=1")
-    #     self.assertEquals(storage.__class__.__name__, "ClientStorage")
-    #     zeo.terminate()
-    #     remove_db_files()
-    # def test_zeo_storage_with_sock(self):
-    #     from django_zodb.storage import get_storage_from_uri
-    #     zeo = start_zeo('sock')
-    #     storage = get_storage_from_uri("zeo:///tmp/zeo.zdsock?blob_dir=/tmp/blobdir&wait=true&wait_timeout=1")
-    #     self.assertEquals(storage.__class__.__name__, "ClientStorage")
-    #     storage.close()
-    #     zeo.terminate()
-    #     remove_db_files()
-
-    def _enabled(self, scheme):
-        enabled = scheme in factories.available()
-        if not enabled:
-            msg = "%s test disabled. Reason: %s" % (scheme, factories.disable_reason(scheme))
-            import warnings
-            warnings.warn(msg, UserWarning)
-        return enabled
-
     def _fake_factories(self, uri):
         from django_zodb.config import get_configuration_from_uri
         from django_zodb.storage import factories
@@ -119,7 +94,8 @@ class StorageTests(TestCase):
             del kwargs['options']
             ret['adapter'] = kwargs
             return "FakeAdapter"
-        def _fake_storage(self, adapter, **kwargs):
+        def _fake_storage(self, **kwargs):
+            kwargs.pop('adapter', None)
             ret['storage'] = kwargs
             return "FakeStorage"
         factory_class._adapter = _fake_adapter
@@ -128,6 +104,38 @@ class StorageTests(TestCase):
         factory_class(config).get_storage()
 
         return ret
+
+    def test_zeo_storage_with_host(self):
+        uri = "zeo://localhost/ignored_path?blobstorage_dir=/tmp/blobdir&wait=true&wait_timeout=1"
+        self.assertEquals(self._fake_factories(uri), {
+            'storage': {
+                'addr': ('localhost', 8090),
+                'blob_dir': '/tmp/blobdir',
+                'wait_timeout': 1,
+                'wait': True,
+            },
+        })
+
+    def test_zeo_storage_with_sock(self):
+        uri = "zeo:///tmp/zeo.zdsock?blob_dir=/tmp/blobdir&wait=true&wait_timeout=1"
+        self.assertEquals(self._fake_factories(uri), {
+            'storage': {
+                'addr': "/tmp/zeo.zdsock",
+                'wait_timeout': 1,
+                'wait': True,
+            },
+        })
+
+    def test_fail_zeo_storage_without_host_and_sock(self):
+        self.assertRaises(ValueError, self._fake_factories, "zeo://")
+
+    def _enabled(self, scheme):
+        enabled = scheme in factories.available()
+        if not enabled:
+            msg = "%s test disabled. Reason: %s" % (scheme, factories.disable_reason(scheme))
+            import warnings
+            warnings.warn(msg, UserWarning)
+        return enabled
 
     def test_mysql_storage(self):
         if not self._enabled('mysql'):
