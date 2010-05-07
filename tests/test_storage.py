@@ -17,6 +17,12 @@ from django_zodb.storage import factories
 
 
 class StorageTests(TestCase):
+    def setUp(self):
+        remove_db_files()
+
+    def tearDown(self):
+        remove_db_files()
+
     def test_fail_unknown_scheme(self):
         from django_zodb.storage import get_storage_from_uri
         self.assertRaises(ValueError, get_storage_from_uri, 'unknown:')
@@ -74,7 +80,6 @@ class StorageTests(TestCase):
         self.assertTrue(os.path.isdir('/tmp/blobdir/tmp'))
         self.assertTrue(os.path.exists('/tmp/blobdir/.layout'))
         self.assertEqual(open('/tmp/blobdir/.layout').read().strip(), 'bushy')
-        remove_db_files()
 
     # TODO: reenable this tests
     # def test_zeo_storage_with_host(self):
@@ -151,7 +156,6 @@ class StorageTests(TestCase):
             },
         })
 
-    # TODO: add support and tests oracle
     def test_postgresql_storage(self):
         if not self._enabled('postgresql'):
             return
@@ -171,6 +175,22 @@ class StorageTests(TestCase):
             },
         })
 
-    # def test_oracle_storage(self):
-    #     if not self._enabled('oracle'):
-    #         return
+    def test_oracle_storage(self):
+        if not self._enabled('oracle'):
+            return
+
+        uri = "oracle://"\
+              "test_user:test_pass@"\
+              "?dsn=user1/pass1@dsn&twophase=true"
+
+        self.assertEquals(self._fake_factories(uri), {
+            'adapter': {
+                'user': 'test_user',
+                'password': 'test_pass',
+                'dsn': 'user1/pass1@dsn',
+                'twophase': True,
+            },
+            'storage': {
+                'create': True,
+            },
+        })

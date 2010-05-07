@@ -10,17 +10,20 @@
 from relstorage.adapters.oracle import OracleAdapter
 from relstorage.options import Options
 
+from django_zodb.config import parse_bool
 from django_zodb.relstorage import RelStorageFactory
 
-# TODO: add support and tests to oracle
+
 class OracleFactory(RelStorageFactory):
     _adapter = OracleAdapter
-    _adapter_args = ()
-    # user, password, dsn, twophase=False, options=None
+    _adapter_args = (
+        ('user', str, 'user'),
+        ('password', str, 'password'),
+        ('dsn', str, 'dsn'),
+        ('twophase', parse_bool, 'twophase'),
+    )
 
     def get_adapter(self, options):
-        raise NotImplemented("TODO")
-
         options = Options(**options)
         settings = self.config.get_settings(self._adapter_args)
         return self._adapter(options=options, **settings)
