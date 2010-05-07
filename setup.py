@@ -42,7 +42,7 @@ setup(
         ],
         'PostgreSQL': [
             'RelStorage>=1.4.0b3',
-            'psycopg2>=2.0.14',
+            'psycopg2>=2.2.0rc1',
         ],
         'Oracle': [
             'RelStorage>=1.4.0b3',

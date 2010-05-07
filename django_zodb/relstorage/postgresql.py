@@ -12,15 +12,23 @@ from relstorage.options import Options
 
 from django_zodb.relstorage import RelStorageFactory
 
-# TODO: add support and tests to postgresql and oracle
 class PostgreSQLFactory(RelStorageFactory):
     _adapter = PostgreSQLAdapter
-    _adapter_args = ()
-    # dsn='', options=None
+    _adapter_args = (
+        ('frag', str, 'dbname'),
+        ('host', str, 'host'),
+        ('port', int, 'port'),
+        ('user', str, 'user'),
+        ('password', str, 'password'),
+        ('sslmode', str, 'sslmode'),
+        ('connect_timeout', int, 'connect_timeout'),
+    )
 
     def get_adapter(self, options):
-        raise NotImplemented("TODO")
-
         options = Options(**options)
         settings = self.config.get_settings(self._adapter_args)
-        return self._adapter(options=options, **settings)
+        args = []
+        for key in sorted(settings.keys()):
+            args.append("%s=%s" % (key, settings[key]))
+        dsn = " ".join(args)
+        return self._adapter(dsn=dsn, options=options)

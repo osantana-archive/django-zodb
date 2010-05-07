@@ -151,10 +151,26 @@ class StorageTests(TestCase):
             },
         })
 
-    # TODO: add support and tests to postgresql and oracle
-    # def test_postgresql_storage(self):
-    #     if not self._enabled('postgresql'):
-    #         return
+    # TODO: add support and tests oracle
+    def test_postgresql_storage(self):
+        if not self._enabled('postgresql'):
+            return
+
+        uri = "postgresql://"\
+              "test_user:test_pass@"\
+              "test_host"\
+              "?create=false"\
+              "#test_dbname"
+
+        self.assertEquals(self._fake_factories(uri), {
+            'adapter': {
+                'dsn': 'dbname=test_dbname host=test_host password=test_pass user=test_user',
+            },
+            'storage': {
+                'create':    False,
+            },
+        })
+
     # def test_oracle_storage(self):
     #     if not self._enabled('oracle'):
     #         return

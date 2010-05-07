@@ -22,7 +22,7 @@ following packages too:
 * `RelStorage`_ 1.4.0b3 or newer — ZODB storage system that store pickles in a
   relational database (in a non-relational format).
 * `MySQLdb`_ 1.2.3c1 or newer — required to connect `MySQL`_ database.
-* `psycopg2`_ 2.0.14 or newer — required to connect `PostgreSQL`_ database.
+* `psycopg2`_ 2.2.0rc1 or newer — required to connect `PostgreSQL`_ database.
 * `cx_Oracle`_ 5.0.3 or newer — required to connect `Oracle`_ database.
 
 Install from sources::

@@ -42,7 +42,7 @@ COVERAGE_MODULES = (
     'django_zodb.storage',
     'django_zodb.relstorage',
     'django_zodb.relstorage.mysql',
-    # 'django_zodb.relstorage.postgresql', TODO
+    'django_zodb.relstorage.postgresql',
     # 'django_zodb.relstorage.oracle', TODO
     'django_zodb.database',
     'django_zodb.utils',
