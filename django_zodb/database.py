@@ -48,11 +48,10 @@ class DatabaseFactory(object):
         config, _ = ZConfig.loadConfig(schema, path)
         for database in config.databases:
             if not frag or frag == database.name:
-                break
+                return database.open()
         else:
             raise ValueError("Database %r not found." % frag)
 
-        return database.open()
 
     def __call__(self):
         if self.config.get('scheme') == 'zconfig':

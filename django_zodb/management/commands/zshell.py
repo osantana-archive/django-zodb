@@ -18,6 +18,5 @@ class Command(NoArgsCommand):
     requires_model_validation = False
 
     def handle_noargs(self, **options):
-        db.disable_commit()
         imported_objects = {'get_database_by_name': get_database_by_name}
         code.interact(local=imported_objects)

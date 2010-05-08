@@ -10,6 +10,7 @@
 import re
 from urlparse import parse_qs
 
+
 def parse_uri(uri):
     def _push(ret, key, buf, next_key=None):
         if not buf:
@@ -26,8 +27,8 @@ def parse_uri(uri):
 
     key = 'scheme'
     buf = []
-    for ch in uri:
-        if ch == ":":
+    for character in uri:
+        if character == ":":
             if key == 'scheme':
                 key, buf = _push(ret, key, buf)
                 if has_dslash:
@@ -44,7 +45,7 @@ def parse_uri(uri):
                 key, buf = _push(ret, key, buf, 'port')
                 continue
 
-        if ch == "/":
+        if character == "/":
             if key == 'dslash1':
                 key = 'dslash2'
                 continue
@@ -58,17 +59,17 @@ def parse_uri(uri):
             if key not in ['path', 'query']:
                 key, buf = _push(ret, key, buf, 'path')
 
-        if ch == "@":
+        if character == "@":
             if key in ['user', 'password']:
                 key, buf = _push(ret, key, buf, 'host')
                 continue
 
-        if ch == "?":
+        if character == "?":
             if key != "query":
                 key, buf = _push(ret, key, buf, 'query')
                 continue
 
-        buf.append(ch)
+        buf.append(character)
 
     # append remaining chars in buffer
     if buf:
