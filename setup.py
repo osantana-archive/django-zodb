@@ -48,6 +48,9 @@ setup(
             'RelStorage>=1.4.0b3',
             'cx_Oracle>=5.0.3',
         ],
+        'samples': [
+            'markdown',
+        ],
     },
     classifiers=[
         'Environment :: Web Environment',

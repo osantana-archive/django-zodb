@@ -6,29 +6,30 @@
 # See COPYING for license
 #
 
-import markdown2 # http://pypi.python.org/pypi/Markdown
 
 from django_zodb import models
 
-# models.Root      - Define a 'root' object for database
-# models.Container - Implements a dict()-like interface.
-class Wiki(models.Root, models.Container):
-
-    # It's possible to change models.Root defaults using
-    # Meta configurations.
+# models.RootContainer - Define a 'root' object for database. This class
+#                        defines __parent__ = __name__ = None
+class Wiki(models.RootContainer):
+    # It's possible to change models.RootContainer settings using Meta
+    # configurations. Here we will explicitly define the default values
     class Meta:
         database = 'default' # Optional. Default: 'default'
         root_name = 'wiki'   # Optional. Default: RootClass.__name__.lower()
 
 
-class Page(models.Container):
-    def __init__(self, title, content="Empty Page."):
-        self.title = title
+# models.Container - We will use Container to add support to subpages.
+class Page(models.PersistentMapping):
+    def __init__(self, content="Empty Page."):
         self.content = content
 
-    def get_content_html(self):
-        md = markdown2.Markdown(
-                safe_mode="escape",
-                extensions=('codehilite', 'def_list', 'fenced_code'))
-        return md.convert(self.content)
+
+# TODO:
+# import markdown # http://pypi.python.org/pypi/Markdown
+#     def get_content_html(self):
+#         md = markdown.Markdown(
+#                 safe_mode="escape",
+#                 extensions=('codehilite', 'def_list', 'fenced_code'))
+#         return md.convert(self.content)
 

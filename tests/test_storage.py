@@ -46,7 +46,7 @@ class StorageTests(TestCase):
 
     def test_file_storage(self):
         from django_zodb.storage import get_storage_from_uri
-        storage = get_storage_from_uri("file:///tmp/test.db")
+        storage = get_storage_from_uri("file:///tmp/test.db?database_name=file")
         self.assertEquals(storage.__class__.__name__, "FileStorage")
         self.assertRaises(TypeError, lambda: storage.fshelper.temp_dir)
         storage.close()

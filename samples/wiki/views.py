@@ -12,38 +12,18 @@ from django_zodb import views
 
 from samples.wiki.models import Wiki, Page
 
-
-class PageViewer(views.Viewer):
+class WikiView(views.View):
     def __index__(self, request, context):
-        page = {
-            'title': context.title,
-            'content': context.get_html(),
-        }
-        return render_to_response("page.html", page)
+        return render_to_response("page.html", {'context': context})
 
-    def edit(self, request, context):
-        page = {
-            'title': context.title,
-            'content': context.get_html(),
-        }
-        return render_to_response("edit.html", page)
+views.registry.register(WikiView, Wiki)
 
 
-# TODO
-"""
-    class Meta:
-        model = Page
-page_viewer = PageViewer(Page)
+class PageView(views.View):
+    def __index__(self, request, context):
+        return render_to_response("page.html", {'context': context})
 
-Traverse returns ->
-  * context (model)
-  * viewer  (viewer)
-  * method  (method name or '' for index)
-  * subpath (remaining path)
+views.registry.register(Page, PageView)
 
 def page(request, path):
-    root = Wiki()
-    context, viewer = views.traverse_or_404(root, path)
-    return viewer(request, context)
-
-"""
+    return views.get_response(request, root=Wiki(), path=path)
