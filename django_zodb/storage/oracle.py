@@ -11,7 +11,7 @@ from relstorage.adapters.oracle import OracleAdapter
 from relstorage.options import Options
 
 from django_zodb.config import parse_bool
-from django_zodb.relstorage import RelStorageFactory
+from django_zodb.storage.rdbms import RelStorageFactory
 
 
 class OracleFactory(RelStorageFactory):
