@@ -41,10 +41,11 @@ TEST_RUNNER='testutils.django_coverage.test_runner_with_coverage'
 
 COVERAGE_MODULES = (
     'django_zodb.storage',
-    'django_zodb.relstorage',
-    'django_zodb.relstorage.mysql',
-    'django_zodb.relstorage.postgresql',
-    'django_zodb.relstorage.oracle',
+    'django_zodb.storage.base',
+    'django_zodb.storage.rdbms',
+    'django_zodb.storage.mysql',
+    'django_zodb.storage.postgresql',
+    'django_zodb.storage.oracle',
     'django_zodb.database',
     'django_zodb.utils',
     'django_zodb.config',

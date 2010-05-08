@@ -9,10 +9,10 @@
 
 from relstorage.storage import RelStorage
 
-from django_zodb.storage import StorageFactory
+from django_zodb.storage.base import AbstractStorageFactory
 from django_zodb.config import parse_bool, parse_tuple
 
-class RelStorageFactory(StorageFactory):
+class RelStorageFactory(AbstractStorageFactory):
     _storage = RelStorage
     _storage_args = (
         ('name', str, 'name'),
