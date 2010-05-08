@@ -48,6 +48,7 @@ factories = _FactoriesRegistry()
 
 # Storage Factories
 class StorageFactory(object):
+    _storage_args = ()
     def __init__(self, config):
         self.demostorage = parse_bool(config.pop('demostorage', "false"))
         self.config = config
@@ -58,7 +59,7 @@ class StorageFactory(object):
         return BlobStorage(storage=storage, **kwargs)
 
     def get_base_storage(self, *args, **kwargs):
-        raise NotImplemented("Abstract class") # pragma: no cover abstract method code
+        raise NotImplemented("Abstract class: %r, %r" % (args, kwargs)) # pragma: no cover abstract method code
 
     def get_storage(self):
         settings = self.config.get_settings(self._storage_args)

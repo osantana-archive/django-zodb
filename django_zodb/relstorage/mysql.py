@@ -30,7 +30,6 @@ class MySQLFactory(RelStorageFactory):
         ('read_default_file', str, 'read_default_file'),
         ('read_default_group', str, 'read_default_group'),
         ('client_flag', int, 'client_flag'),
-        # ('ssl', parse_dict, 'ssl'), # TODO: dict(key="",cert="",ca="",capath="",cipher="")
         ('load_infile', int, 'load_infile'),
     )
 
