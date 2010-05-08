@@ -6,12 +6,9 @@
 # See COPYING for license
 #
 
-# TODO: To Implement...
 from persistent.mapping import PersistentMapping
 
-class Container(PersistentMapping):
-    pass
-
-class Root(Container):
-    pass
+class RootContainer(PersistentMapping):
+    __name__ = None
+    __parent__ = None
 

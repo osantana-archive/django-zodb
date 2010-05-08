@@ -17,7 +17,7 @@ DATABASE_ENGINE = 'sqlite3'
 DATABASE_NAME = ':memory:'
 
 ZODB = {
-    'default': ['file://' + os.path.join(ROOTDIR, "wiki.fs")],
+    'default': ['file://' + os.path.join(ROOTDIR, "wiki_db.fs")],
 }
 
 ROOT_URLCONF = 'urls'
@@ -28,6 +28,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = ('django.middleware.common.CommonMiddleware',)
+
 TEMPLATE_DIRS = (os.path.join(ROOTDIR, "templates"),)
 
 INSTALLED_APPS = (
