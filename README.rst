@@ -36,7 +36,7 @@ Or from PyPI (using easy_install)::
 Running tests
 -------------
 
-Install coverage_ If you need test coverage informations::
+Install coverage_ if you need test coverage informations::
 
     $ easy_install -U coverage
 
@@ -47,11 +47,11 @@ To run tests::
 Configuration
 -------------
 
-You need to configure your `settings.py` like this::
+You need to configure your ``settings.py`` like this::
 
     ZODB = {
         'default': [
-            'mysql://user@passwd:localhost/relstorage_db?database_name=main_app',
+            'mysql://user@passwd:localhost/relstorage_db?database_name=app',
             'postgresql://user@passwd:pg_test:5678/app1_db',
         ],
         'test':      [ 'mem://', 'mem://?database_name=catalog' ],
@@ -65,35 +65,26 @@ You need to configure your `settings.py` like this::
         ],
     }
 
-You need to define a URI to specify what database you will connect. The basic
-URI structure is::
-
-    scheme://username:password@host:port/path?query_arg1=foo&query_arg2=bar#fraction
-
 You can find a list of schemes and connection adapters in `Connection Schemes`_.
 
 Creating sample application
 ===========================
 
-I believe the best way to learn something is by developing something. So, let's
-create the "Hello World" application of the Web: a simple Wiki for our
-intranet using ZODB to store data.
+I strongly believe in "learn by doing" strategy, so, let's create a sample
+Wiki application that stores their pages in ZODB.
 
-Recommended Reading
--------------------
-
-If you don't know ZODB and/or the Traversal algorithm I strongly recommend to
-read the following documents:
+I suggest the reading of the following tutorials and articles if you don't know
+ZODB or the Traversal Algorithm (that we will use in our tutorial):
 
 * `ZODB Tutorial`_
 * `ZODB Programming Guide`_
-* `Traversal`_ chapter at bfg.repoze documentation.
+* `Traversal`_ chapter at `Repoze.BFG documentation`_.
 
-Starting Django Project
------------------------
+Starting Django Project and Application
+---------------------------------------
 
-We will start a project called ``intranet`` and create a Django application
-``wiki`` inside this project::
+We will start a project called ``intranet`` with a Django application called
+``wiki``::
 
     $ django-admin.py startproject intranet
     $ cd intranet
@@ -108,9 +99,13 @@ configure our database connections::
     import os
     ROOTDIR = os.path.dirname(os.path.realpath(__file__))
 
+    # No relational database...
+    DATABASE_ENGINE = 'sqlite3'
+    DATABASE_NAME = ':memory:'
+
     # append the following lines:
     ZODB = {
-        'default': [ 'file://%s' % (os.path.join(ROOTDIR, 'wiki_db.fs'),) ],
+        'default': ['file://' + os.path.join(ROOTDIR, 'wiki_db.fs')],
     }
 
     # ... other Django configurations ...
@@ -126,30 +121,25 @@ objects (let's name it ``Wiki``) and a model to store the wiki pages itself
     #!/usr/bin/env python
     # wiki/models.py
 
-    import markdown2 # http://pypi.python.org/pypi/Markdown
 
     from django_zodb import models
 
-    # models.Root      - Define a 'root' object for database
-    # models.Container - Implements a dict()-like interface.
-    class Wiki(models.Root, models.Container):
 
-        # It's possible to change models.Root defaults using
-        # Meta configurations.
+    # models.RootContainer - Define a 'root' object for database. This class
+    #                        defines __parent__ = __name__ = None
+    class Wiki(models.RootContainer):
+
+        # It's possible to change models.RootContainer settings using Meta
+        # configurations. Here we will explicitly define the default values
         class Meta:
             database = 'default' # Optional. Default: 'default'
             root_name = 'wiki'   # Optional. Default: RootClass.__name__.lower()
 
-    class Page(models.Container):
-        def __init__(self, title, content="Empty Page."):
-            self.title = title
-            self.content = content
 
-        def get_content_html(self):
-            md = markdown2.Markdown(
-                    safe_mode="escape",
-                    extensions=('codehilite', 'def_list', 'fenced_code'))
-            return md.convert(self.content)
+    # models.Container - We will use Container to add support to subpages.
+    class Page(models.Container):
+        def __init__(self, content="Empty Page."):
+            self.content = content
 
 
 We've a configured application and models. It's time to map an URL to our view
@@ -165,33 +155,22 @@ function::
         (r'^(?P<path>.*)/?$', 'wiki.views.page'),
     )
 
-And our ``wiki/views.py`` file::
+And ``wiki/views.py``::
 
     #!/usr/bin/env python
     # views.py
+
+    from django.shortcuts import render_to_response
 
     from django_zodb import views
 
     from wiki.models import Wiki, Page
 
-    class PageViewer(views.Viewer):
-        def __index__(self, request, context, subpath=""):
-            page = {
-                'title': context.title,
-                'content': context.get_html(),
-            }
-            return render_to_response("page.html", page)
+    class PageView(views.View):
+        def __index__(self, request, context, subpath):
+            return render_to_response("page.html", {'context': context})
 
-
-        def edit(self, request, context, subpath=""):
-            # TODO
-            page = {
-                'title': context.title,
-                'content': context.get_html(),
-            }
-            return render_to_response("edit.html", page)
-
-    views.register(Page, PageViewer)
+    views.registry.register(Page, PageView)
 
     def page(request, path):
         return views.get_response(request, root=Wiki(), path=path)
@@ -199,7 +178,7 @@ And our ``wiki/views.py`` file::
 Traversal
 ---------
 
-From `bfg.repoze documentation`_:
+From `Repoze.BFG documentation`_:
 
     Traversal is a context finding mechanism. It is the act of finding a context and
     a view name by walking over an object graph, starting from a root object, using
@@ -236,24 +215,39 @@ With a simple function call::
 
         context, view_name = traverse_or_404(root, path, "Object not found.")
 
-You can read more about about traversal at `bfg.repoze documentation`_
+You can read more about about traversal at `Repoze.BFG documentation`_
 
 .. Connection Schemes:
 
 Connection Schemes
 ------------------
 
-An URI is composed of the following parts::
+You can specify a ZODB connection using a URI. This URI is composed of the
+following arguments::
 
-    scheme://user:password@host:port/path?arg1=...&argN=...#fragment
+    scheme://username:password@host:port/path?arg1=foo&arg2=bar#fraction
 
+Depending on the chosen scheme some of these arguments are required and
+others optional.
 
-``mem:`` (``ZODB.MappingStorage.MappingStorage``)
+Database and Connection settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Arguments related to database connection settings. These arguments are optional
+and must be passed as query argument in URI (eg. ``?database_name=db&...``).
+
+* ``database_name`` — ``str`` — database name used by ZODB.
+* ``connection_cache_size`` — ``int`` — size (in bytes) of database cache.
+* ``connection_pool_size`` — ``int`` — size of connection pool.
+
+These arguments are passed to ``ZODB.DB.DB()`` constructor.
+
+Memory Storage ``mem:`` (``ZODB.MappingStorage``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a in memory storage.
+Returns an in-memory storage. It's basically a Python ``dict()`` object.
 
-URIs Examples::
+Valid URIs::
 
     mem
     mem:
@@ -263,31 +257,39 @@ URIs Examples::
 Optional Arguments
 ''''''''''''''''''
 
-* See `Common arguments`_.
+* See `Demo storage argument`_.
 * See `Blob storage arguments`_.
 
-``file:`` (``ZODB.FileStorage.FileStorage.FileStorage``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+File Storage ``file:`` (``ZODB.FileStorage``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a database stored in a file.
+Returns a database stored in a file. You need to specify an absolute path to the
+database file.
 
-URIs Examples::
+Valid URIs::
 
     file:///tmp/Data.fs
-    file:///tmp/main.db#database_name=file
+    file:///tmp/main.db?database_name=file
+
+Invalid URIs::
+
+    file://subdir/Data.fs
 
 Required Arguments
 ''''''''''''''''''
 
-* ``path`` (``str``) - absolute path to file where database will be stored.
+* ``path`` — ``str`` — absolute path to file where database will be stored.
 
-Optional Arguments (and default values)
-'''''''''''''''''''''''''''''''''''''''
+Optional Arguments
+''''''''''''''''''
 
-* ``create=False`` (``bool``) -
-* ``read_only=False`` (``bool``) -
-* ``quota=None`` (``int``) - Storage quota. Disabled (``None``) by default.
-* See `Common arguments`_.
+* ``create`` — ``bool`` — create database file if does not exist. Default:
+  ``create=True``.
+* ``read_only`` – ``bool`` — open storage only for reading. Default:
+  ``read_only=False``.
+* ``quota`` — ``int`` — storage quota. Default: disabled (``quota=None``).
+
+* See `Demo storage argument`_.
 * See `Blob storage arguments`_.
 
 ``zconfig:`` (``ZODB.DB.DB``)
@@ -297,7 +299,7 @@ Returns database (or databases) specified in ZCML configuration file.
 
 .. Note:: This scheme has some small differences with other schemes because it
    returns a DB object instead of a Storage. It's a problem only in cases where
-   you are creating the connection 'by hand' instead of use a high level API.
+   you are creating the connection 'by hand' instead of use a higher level API.
 
 URIs Examples::
 
@@ -344,17 +346,18 @@ TODO
 
 .. Warning:: Not Implemented yet.
 
-.. _`Common arguments`:
 
-Common arguments
-~~~~~~~~~~~~~~~~
+.. _`Demo storage argument`:
+
+Demo storage argument
+~~~~~~~~~~~~~~~~~~~~~
 
 XXX
 
 .. _`Blob storage arguments`:
 
 Blob storage arguments
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 XXX
 
@@ -363,24 +366,10 @@ TODO
 
 ::
 
-    - Finish 'relstorage' drivers (+++)
     - Implement models and views modules (++++)
     - Finish 'samples.wiki' application (++)
     - Update tutorial to reflect 'samples.wiki' source code (+)
     - Add a "narrative" API reference in README.rst (or use docstrings?) (++)
-    - Create a setup.py with distribute (and pip) support (+)
-
-
-.. Opening a database
-.. ~~~~~~~~~~~~~~~~~~
-..
-.. To open a ZODB database you use::
-..
-..     from django_zodb.database import open_database
-..     db = open_database('db1')
-..
-.. The ``open_database()`` function will use ``settings.ZODB['db1']`` specifications to
-.. establish a database connection and returns a ZODB's ``DB()`` object.
 
 .. _Django-ZODB: http://triveos.github.com/django-zodb/
 .. _ZODB: http://pypi.python.org/pypi/ZODB3
@@ -397,4 +386,4 @@ TODO
 .. _ZODB Tutorial: http://www.zodb.org/documentation/tutorial.html
 .. _ZODB programming guide: http://www.zodb.org/documentation/guide/index.html
 .. _Traversal: http://docs.repoze.org/bfg/current/narr/traversal.html
-.. _bfg.repoze documentation: http://docs.repoze.org/bfg/1.3/
+.. _Repoze.BFG documentation: http://docs.repoze.org/bfg/1.3/
