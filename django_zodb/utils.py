@@ -82,3 +82,28 @@ def parse_uri(uri):
         ret['query'] = parse_qs(ret['query'], keep_blank_values=True)
 
     return ret
+
+
+# Repoze.BFG url_quote()
+always_safe = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+               'abcdefghijklmnopqrstuvwxyz'
+               '0123456789' '_.-')
+_safemaps = {}
+_must_quote = {}
+
+def url_quote(s, safe=''):
+    cachekey = (safe, always_safe)
+    try:
+        safe_map = _safemaps[cachekey]
+        if not _must_quote[cachekey].search(s):
+            return s
+    except KeyError:
+        safe += always_safe
+        _must_quote[cachekey] = re.compile(r'[^%s]' % safe)
+        safe_map = {}
+        for i in range(256):
+            c = chr(i)
+            safe_map[c] = (c in safe) and c or ('%%%02X' % i)
+        _safemaps[cachekey] = safe_map
+    res = map(safe_map.__getitem__, s)
+    return ''.join(res)
