@@ -48,6 +48,7 @@ COVERAGE_MODULES = (
     'django_zodb.storage.oracle',
     'django_zodb.database',
     'django_zodb.utils',
+    'django_zodb.views',
     'django_zodb.config',
 )
 

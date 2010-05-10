@@ -9,3 +9,4 @@
 from test_utils import URIParseTests
 from test_storage import StorageTests
 from test_database import DatabaseTests
+from test_views import ViewsTests
