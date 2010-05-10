@@ -25,16 +25,16 @@ ROOT['foo'].set('qux', FakeContainer())
 ROOT['foo']['qux'].set('quxx', FakeModel())
 ROOT.set(u'úñíçõdê', FakeContainer())
 
-# class ModelsTests(TestCase):
-#     def eq(self, a, b, *args, **kwargs):
-#         return self.assertEquals(a, b, *args, **kwargs)
-#
-#     def raise_(self, err, func, *args, **kwargs):
-#         return self.assertRaises(err, func, *args, **kwargs)
-#
-#     def test_model_path(self):
-#         from django_zodb import models
-#
-#         self.assertEquals(models.model_path(ROOT['foo']['qux']['quxx']), "/foo/qux/quxx")
-#         self.assertEquals(models.model_path(ROOT), u"/")
-#         self.assertEquals(models.model_path(ROOT[u'úñíçõdê']), u"/%C3%BA%C3%B1%C3%AD%C3%A7%C3%B5d%C3%AA")
+class ModelsTests(TestCase):
+    def eq(self, a, b, *args, **kwargs):
+        return self.assertEquals(a, b, *args, **kwargs)
+
+    def raise_(self, err, func, *args, **kwargs):
+        return self.assertRaises(err, func, *args, **kwargs)
+
+    def test_model_path(self):
+        from django_zodb import models
+
+        self.assertEquals(models.model_path(ROOT['foo']['qux']['quxx']), "/foo/qux/quxx")
+        self.assertEquals(models.model_path(ROOT), u"/")
+        self.assertEquals(models.model_path(ROOT[u'úñíçõdê']), u"/%C3%BA%C3%B1%C3%AD%C3%A7%C3%B5d%C3%AA")

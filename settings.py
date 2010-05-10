@@ -49,6 +49,7 @@ COVERAGE_MODULES = (
     'django_zodb.database',
     'django_zodb.utils',
     'django_zodb.views',
+    'django_zodb.models',
     'django_zodb.config',
 )
 
