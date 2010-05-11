@@ -37,7 +37,7 @@ class ViewsTests(TestCase):
         self.raise_(TypeError, sp, "/foo/bar/b%C3%00z/")
 
     def test_traverse_result(self):
-        from django_zodb.views import traverse_result as tr
+        from django_zodb.views import traverse as tr
 
         def _eq(res, **kw):
             self.eq(res.root, kw['root'], "root: %r != %r" % (res.root, kw['root']))
@@ -67,56 +67,83 @@ class ViewsTests(TestCase):
         _eq(tr(ROOT, "/foo/qux/quxx/quxxx/sub"), root=ROOT, ctx=ROOT['foo']['qux']['quxx'], mn=u"quxxx", sp=(u'sub',), tr=(u'foo', u'qux', u'quxx', u'quxxx'))
         _eq(tr(ROOT['foo'], "/foo"), root=ROOT['foo'], ctx=ROOT['foo'], mn=u"foo", sp=(), tr=(u'foo',))
 
-    def test_get_response_model(self):
+    def test_get_response_or_404_model(self):
         from django_zodb import views
 
         class _ContainerView(views.View):
-            def __index__(self, request):
+            def __index__(self, request, context, root, subpath, traversed):
                 return "__index__ response: %r" % request
-        views.registry.register(model=FakeContainer, view=_ContainerView)
+        views.registry.register(model=FakeContainer, view=_ContainerView())
 
-        response = views.get_response("request", ROOT, "/foo/bar")
+        response = views.get_response_or_404("request", ROOT, "/foo/bar")
         self.eq(response, "__index__ response: 'request'")
 
-    def test_get_response_method_1(self):
+    def test_get_response_or_404_method_1(self):
         from django_zodb import views
 
         class _ContainerView(views.View):
-            def __index__(self, request):
+            def __index__(self, request, context, root, subpath, traversed):
                 return "__index__ response: %r" % request
-            def baz(self, request):
+            def baz(self, request, context, root, subpath, traversed):
                 return "baz response: %r" % request
-        views.registry.register(FakeContainer, _ContainerView)
+        views.registry.register(model=FakeContainer, view=_ContainerView())
 
-        response = views.get_response("request", ROOT, "/foo/bar/baz")
+        response = views.get_response_or_404("request", ROOT, "/foo/bar/baz")
         self.eq(response, "baz response: 'request'")
 
-    def test_get_response_method_2(self):
+    def test_get_response_or_404_method_2(self):
         from django_zodb import views
 
         class _ContainerView(views.View):
-            def __index__(self, request):
+            def __index__(self, request, context, root, subpath, traversed):
                 return "__index__ response: %r" % request
-            def baz(self, request):
-                return "baz response: %r subpath: %r" % (request, "/".join(self.subpath))
-        views.registry.register(FakeContainer, _ContainerView)
+            def baz(self, request, context, root, subpath, traversed):
+                return "baz response: %r subpath: %r" % (request, "/".join(subpath))
+        views.registry.register(model=FakeContainer, view=_ContainerView())
 
-        response = views.get_response("request", ROOT, "/foo/bar/baz/subpath/1")
+        response = views.get_response_or_404("request", ROOT, "/foo/bar/baz/subpath/1")
         self.eq(response, "baz response: 'request' subpath: u'subpath/1'")
 
-    def test_fail_get_response_view_not_found(self):
+    def test_fail_get_response_or_404_view_not_found(self):
         from django_zodb import views
         from django.http import Http404
 
-        self.raise_(Http404, views.get_response, "request", ROOT, "/foo/bar")
+        self.raise_(Http404, views.get_response_or_404, "request", ROOT, "/foo/bar")
 
-    def test_fail_get_response_method_not_found(self):
+    def test_fail_get_response_or_404_method_not_found(self):
         from django_zodb import views
         from django.http import Http404
 
         class _ContainerView(views.View):
-            def __index__(self, request):
+            def __index__(self, request, context, root, subpath, traversed):
                 return "__index__ response: %r" % request
-        views.registry.register(FakeContainer, _ContainerView)
+        views.registry.register(model=FakeContainer, view=_ContainerView())
 
-        self.assertRaises(Http404, views.get_response, "request", ROOT, "/foo/bar/baz")
+        self.assertRaises(Http404, views.get_response_or_404, "request", ROOT, "/foo/bar/baz")
+
+    def test_view_results(self):
+        from django_zodb import views
+
+        t = views.TraverseResult(root="root")
+        self.assertEquals(t.root, "root")
+        self.assertEquals(t.method_name, u"")
+
+        t['bla'] = 'ble'
+        self.assertEquals(t.bla, 'ble')
+        self.assertEquals(t['bla'], 'ble')
+
+        t.foo = "bar"
+        self.assertEquals(t.foo, 'bar')
+        self.assertEquals(t['foo'], 'bar')
+
+        self.assertEquals(sorted(t.items()), [
+            ('bla', 'ble'),
+            ('context', None),
+            ('foo', 'bar'),
+            ('method_name', u''),
+            ('root', 'root'),
+            ('subpath', ()),
+            ('traversed', ())
+        ])
+
+        self.assertTrue("<django_zodb.views.TraverseResult" in repr(t))

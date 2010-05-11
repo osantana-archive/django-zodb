@@ -33,7 +33,7 @@ class _ViewRegistry(object):
     def register(self, model, view):
         self.views[model] = view
 
-    def get_view_class(self, context):
+    def get_view(self, context):
         try:
             return self.views[context.__class__]
         except KeyError:
@@ -43,34 +43,34 @@ registry = _ViewRegistry()
 
 
 
-class View(object):
-    def __init__(self, traverse_result):
-        self.root = traverse_result.root
-        self.context = traverse_result.context
-
-        if traverse_result.method_name:
-            self.method_name = traverse_result.method_name
-        else:
-            self.method_name = "__index__"
-
-        self.subpath = traverse_result.subpath
-        self.traversed = traverse_result.traversed
-
-    def __call__(self, request):
-        try:
-            method = getattr(self, self.method_name)
-        except AttributeError:
-            raise MethodNotFound("View %r does not exist." % self.method_name)
-        return method(request)
-
-
 class TraverseResult(object):
-    def __init__(self):
-        self.root = None
-        self.context = None
-        self.method_name = ""
-        self.subpath = ()
-        self.traversed = ()
+    def __init__(self, **kwargs):
+        self._results = {
+            'root': None,
+            'context': None,
+            'method_name': u"",
+            'subpath': (),
+            'traversed': (),
+        }
+        self._results.update(kwargs)
+
+    def __setattr__(self, attr, value):
+        if attr == "_results":
+            super(TraverseResult, self).__setattr__(attr, value)
+        else:
+            self._results[attr] = value
+
+    def __getattr__(self, attr):
+        try:
+            return self._results[attr]
+        except KeyError:
+            return getattr(self._results, attr)
+
+    def __setitem__(self, key, value):
+        self._results[key] = value
+
+    def __getitem__(self, key):
+        return self._results[key]
 
 
 
@@ -91,8 +91,7 @@ def split_path(path):
                                 'UTF-8 decoding scheme' % segment)
     return tuple(clean)
 
-def traverse_result(root, path):
-    result = TraverseResult()
+def traverse(root, path):
     path = split_path(path)
 
     context = root
@@ -114,24 +113,31 @@ def traverse_result(root, path):
     else:
         segment = u""
 
-    result.context = context
-    result.method_name = segment
-    result.subpath = path[i + 1:]
-    result.traversed = path[:i + 1]
-    result.root = root
+    result = TraverseResult(
+        context = context,
+        method_name = segment,
+        subpath = path[i + 1:],
+        traversed = path[:i + 1],
+        root = root,
+    )
     return result
 
+def get_response(request, root, path):
+    result = traverse(root, path)
+    view = registry.get_view(result.context)
+    return view(request, result)
 
-def traverse(root, path):
-    result = traverse_result(root, path)
-    view_class = registry.get_view_class(result.context)
-    return view_class(result)
-
-
-# Shortcut
-def get_response(request, root, path, error_message="Not found.", exception=Http404):
+def get_response_or_404(request, root, path):
     try:
-        view = traverse(root, path)
-        return view(request)
+        return get_response(request, root, path)
     except TraversalError:
-        raise exception(error_message)
+        raise Http404("%r not found." % path)
+
+class View(object):
+    def __call__(self, request, result):
+        method_name = result.pop("method_name") or "__index__"
+        try:
+            method = getattr(self, method_name)
+        except AttributeError:
+            raise MethodNotFound("View %r does not exist." % method_name)
+        return method(request, **result)
