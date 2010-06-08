@@ -488,6 +488,19 @@ XXX
 TODO
 ----
 
+* Review my 'engrish' in documentation
+* Test with Django >= 1.2
+* Finish this README (remove XXX)
+* Create a new Website
+* Release 0.2 version (and announce)
+* Test Relstorage connections with Oracle and PostgreSQL
+* Create more manage.py commands for ZODB management
+* Create a Django-ORM layer (wow!)
+* Evaluate some fulltext-search, catalog, etc integrations
+* Fix performance issues (?)
+* ... and fix (tons of) bugs! :D
+
+
 .. _Django-ZODB: http://triveos.github.com/django-zodb/
 .. _ZODB: http://pypi.python.org/pypi/ZODB3
 .. _Django: http://www.djangoproject.com/
