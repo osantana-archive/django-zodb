@@ -5,11 +5,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Django-ZODB Wiki Sample</title>
+    <title>{{context.name}} - Django-ZODB Wiki Sample</title>
 </head>
 
 <body>
-    <h1>{{context.title|default:"Untitled"}}</h1>
-    <pre>{{context.content}}</pre>
+    <h1>{{context.name}}</h1>
+    <div id="content">{{content|safe}}</div>
+    <p><a href="{{edit_link}}">edit</a></p>
+    <h2>Links:</h2>
+    <ul>
+    {% for page in root.pages %}
+      <li><a href="{{page.get_absolute_url}}">{{page.name}}</a></li>
+    {% endfor %}
+    </ul>
 </body>
 </html>

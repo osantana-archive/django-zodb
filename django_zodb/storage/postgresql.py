@@ -12,6 +12,7 @@ from relstorage.options import Options
 
 from django_zodb.storage.rdbms import RelStorageFactory
 
+
 class PostgreSQLFactory(RelStorageFactory):
     _adapter = PostgreSQLAdapter
     _adapter_args = (

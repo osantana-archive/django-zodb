@@ -10,6 +10,15 @@
 import re
 from urlparse import parse_qs
 
+# http://stackoverflow.com/questions/1175208/
+FIRST_CAP_RE = re.compile('(.)([A-Z][a-z]+)')
+ALL_CAP_RE = re.compile('([a-z0-9])([A-Z])')
+
+
+def camel_case_to_underline(name):
+    s1 = FIRST_CAP_RE.sub(r'\1_\2', name)
+    return ALL_CAP_RE.sub(r'\1_\2', s1).lower()
+
 
 def parse_uri(uri):
     def _push(ret, key, buf, next_key=None):
@@ -90,6 +99,7 @@ always_safe = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                '0123456789' '_.-')
 _safemaps = {}
 _must_quote = {}
+
 
 def url_quote(s, safe=''):
     cachekey = (safe, always_safe)

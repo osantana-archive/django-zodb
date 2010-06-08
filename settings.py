@@ -27,11 +27,15 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.load_template_source',
 )
 
-MIDDLEWARE_CLASSES = ('django.middleware.common.CommonMiddleware',)
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django_zodb.middleware.TransactionMiddleware',
+)
 
 TEMPLATE_DIRS = (os.path.join(ROOTDIR, "templates"),)
 
 INSTALLED_APPS = (
+    'django_zodb',
     'tests',
     'samples.wiki',
 )
@@ -45,7 +49,6 @@ COVERAGE_MODULES = (
     'django_zodb.storage.rdbms',
     'django_zodb.storage.mysql',
     'django_zodb.storage.postgresql',
-    'django_zodb.storage.oracle',
     'django_zodb.database',
     'django_zodb.utils',
     'django_zodb.views',

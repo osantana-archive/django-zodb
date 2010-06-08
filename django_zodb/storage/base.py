@@ -15,6 +15,7 @@ from ZODB.FileStorage.FileStorage import FileStorage
 from django_zodb.config import parse_bool, REQUIRED
 from django_zodb.storage import AbstractStorageFactory
 
+
 # Basic Storage Factories
 class MemoryFactory(AbstractStorageFactory):
     _storage = MappingStorage

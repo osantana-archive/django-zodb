@@ -15,7 +15,6 @@ from testutils.tools import remove_db_files
 
 from django_zodb.storage import factories
 
-
 class StorageTests(TestCase):
     def setUp(self):
         remove_db_files()
@@ -183,22 +182,22 @@ class StorageTests(TestCase):
             },
         })
 
-    def test_oracle_storage(self):
-        if not self._enabled('oracle'):
-            return
-
-        uri = "oracle://"\
-              "test_user:test_pass@"\
-              "?dsn=user1/pass1@dsn&twophase=true"
-
-        self.assertEquals(self._fake_factories(uri), {
-            'adapter': {
-                'user': 'test_user',
-                'password': 'test_pass',
-                'dsn': 'user1/pass1@dsn',
-                'twophase': True,
-            },
-            'storage': {
-                'create': True,
-            },
-        })
+    # def test_oracle_storage(self):
+    #     if not self._enabled('oracle'):
+    #         return
+    #
+    #     uri = "oracle://"\
+    #           "test_user:test_pass@"\
+    #           "?dsn=user1/pass1@dsn&twophase=true"
+    #
+    #     self.assertEquals(self._fake_factories(uri), {
+    #         'adapter': {
+    #             'user': 'test_user',
+    #             'password': 'test_pass',
+    #             'dsn': 'user1/pass1@dsn',
+    #             'twophase': True,
+    #         },
+    #         'storage': {
+    #             'create': True,
+    #         },
+    #     })

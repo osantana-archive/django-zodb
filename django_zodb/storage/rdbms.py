@@ -12,6 +12,7 @@ from relstorage.storage import RelStorage
 from django_zodb.storage.base import AbstractStorageFactory
 from django_zodb.config import parse_bool, parse_tuple
 
+
 class RelStorageFactory(AbstractStorageFactory):
     _storage = RelStorage
     _storage_args = (
@@ -36,10 +37,10 @@ class RelStorageFactory(AbstractStorageFactory):
     )
 
     def get_adapter(self, *args, **kwargs):
-        raise NotImplemented("Abstract class: %r, %r" % (args, kwargs)) # pragma: no cover abstract method code
+        raise NotImplemented("Abstract class: %r, %r" % (args, kwargs))  # pragma: no cover abstract method code
 
     def get_base_storage(self, **options):
-        create = options.pop("create", True) # HACK: missing in relstorage.options.Options(?)
+        create = options.pop("create", True)  # HACK: missing in relstorage.options.Options(?)
         adapter = self.get_adapter(options)
         options['create'] = create
         options['adapter'] = adapter
