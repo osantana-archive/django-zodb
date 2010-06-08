@@ -16,8 +16,10 @@ from django.http import Http404
 class TraversalError(Exception):
     pass
 
+
 class MethodNotFound(TraversalError):
     pass
+
 
 class ViewNotFound(TraversalError):
     pass
@@ -40,7 +42,6 @@ class _ViewRegistry(object):
             raise ViewNotFound("No registered view for %r" % context)
 
 registry = _ViewRegistry()
-
 
 
 class TraverseResult(object):
@@ -73,7 +74,6 @@ class TraverseResult(object):
         return self._results[key]
 
 
-
 def split_path(path):
     path = path.strip('/')
     clean = []
@@ -90,6 +90,7 @@ def split_path(path):
                 raise TypeError('Could not decode path segment %r using the '
                                 'UTF-8 decoding scheme' % segment)
     return tuple(clean)
+
 
 def traverse(root, path):
     path = split_path(path)
@@ -114,24 +115,27 @@ def traverse(root, path):
         segment = u""
 
     result = TraverseResult(
-        context = context,
-        method_name = segment,
-        subpath = path[i + 1:],
-        traversed = path[:i + 1],
-        root = root,
+        context=context,
+        method_name=segment,
+        subpath=path[i + 1:],
+        traversed=path[:i + 1],
+        root=root,
     )
     return result
+
 
 def get_response(request, root, path):
     result = traverse(root, path)
     view = registry.get_view(result.context)
     return view(request, result)
 
+
 def get_response_or_404(request, root, path):
     try:
         return get_response(request, root, path)
-    except TraversalError:
-        raise Http404("%r not found." % path)
+    except TraversalError, ex:
+        raise Http404("%r not found (%s)." % (path, ex))
+
 
 class View(object):
     def __call__(self, request, result):

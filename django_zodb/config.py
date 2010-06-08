@@ -11,11 +11,14 @@ from django_zodb.utils import parse_uri
 
 REQUIRED = True
 
+
 def parse_bool(value):
     return value and value.lower()[0] not in 'nf0'
 
+
 def parse_tuple(values):
     return tuple(value.strip() for value in values.split(","))
+
 
 class Configuration(object):
     def __init__(self, uri):
@@ -27,8 +30,8 @@ class Configuration(object):
         for key, values in query.items():
             if key in config:
                 raise ValueError("Cannot override %r argument." % key)
-            value = values[-1] # only last argument
-            if value == '':    # ?arg1&arg2&... == ?arg1=1&arg2=1&...
+            value = values[-1]  # only last argument
+            if value == '':     # ?arg1&arg2&... == ?arg1=1&arg2=1&...
                 config[key] = '1'
             else:
                 config[key] = value
@@ -60,6 +63,7 @@ class Configuration(object):
 
     def get(self, key, default=None):
         return self.configuration.get(key, default)
+
 
 def get_configuration_from_uri(uri):
     return Configuration(uri)

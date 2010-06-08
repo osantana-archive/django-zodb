@@ -145,5 +145,3 @@ class ViewsTests(TestCase):
             ('subpath', ()),
             ('traversed', ())
         ])
-
-        self.assertTrue("<django_zodb.views.TraverseResult" in repr(t))

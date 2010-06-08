@@ -11,4 +11,3 @@ from django.conf.urls.defaults import *
 urlpatterns = patterns('',
     (r'^(?P<path>.*)/?$', 'samples.wiki.views.page'),
 )
-

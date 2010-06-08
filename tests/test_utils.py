@@ -93,3 +93,16 @@ class URIParseTests(TestCase):
             query={'compress': ['1']},
             frag="test_dbname",
         )
+
+    def test_camel_case_to_underline(self):
+        from django_zodb.utils import camel_case_to_underline as cc2u
+
+        self.assertEquals(cc2u("Foo"), "foo")
+        self.assertEquals(cc2u("foo"), "foo")
+        self.assertEquals(cc2u("FooBar"), "foo_bar")
+        self.assertEquals(cc2u("FooBarBaz"), "foo_bar_baz")
+        self.assertEquals(cc2u("FooBarBazX"), "foo_bar_baz_x")
+        self.assertEquals(cc2u("ISBNNumber"), "isbn_number")
+        self.assertEquals(cc2u("XMod1"), "x_mod1")
+        self.assertEquals(cc2u("Convert2ISBN"), "convert2_isbn")
+        self.assertEquals(cc2u("Convert_2_ISBN"), "convert_2_isbn")

@@ -2,7 +2,6 @@ Django-ZODB
 ===========
 
 `Django-ZODB`_ is a simple `ZODB`_ database backend for `Django`_ Framework.
-
 It's strongly inpired in `repoze.zodbconn`_.
 
 .. Warning:: This is a Work-in-Progress project, so, there is a big chance that
@@ -110,7 +109,16 @@ configure our database connections::
 
     # ... other Django configurations ...
 
+    MIDDLEWARE_CLASSES = (
+        # ... other middlewares ...
+
+        # If everything is ok (aka no exception raised) this middleware will
+        # run a transaction.commit() on response.
+        'django_zodb.middleware.TransactionMiddleware',
+    )
+
     INSTALLED_APPS = (
+        'django_zodb',  # enable manage.py zshell command
         'wiki',
     )
 
@@ -121,26 +129,42 @@ objects (let's name it ``Wiki``) and a model to store the wiki pages itself
     #!/usr/bin/env python
     # wiki/models.py
 
-
+    import markdown  # http://pypi.python.org/pypi/Markdown
     from django_zodb import models
-
 
     # models.RootContainer - Define a 'root' object for database. This class
     #                        defines __parent__ = __name__ = None
     class Wiki(models.RootContainer):
+        def pages(self):
+            for pagename in sorted(self):
+                yield self[pagename]
+
+        def get_absolute_url(self):
+            return "/wiki"
 
         # It's possible to change models.RootContainer settings using Meta
         # configurations. Here we will explicitly define the default values
         class Meta:
-            database = 'default' # Optional. Default: 'default'
-            root_name = 'wiki'   # Optional. Default: RootClass.__name__.lower()
-
+            database = 'default'  # Optional. Default: 'default'
+            rootname = 'wiki'     # Optional. Default: RootClass.__name__.lower()
 
     # models.Container - We will use Container to add support to subpages.
-    class Page(models.Container):
+    class Page(models.Model):
         def __init__(self, content="Empty Page."):
+            super(Page, self).__init__()
             self.content = content
 
+        def html(self):
+            md = markdown.Markdown(safe_mode="escape",
+                    extensions=('codehilite', 'def_list', 'fenced_code'))
+            return md.convert(self.content)
+
+        @property
+        def name(self):
+            return self.__name__
+
+        def get_absolute_url(self):
+            return u"/".join((self.__parent__.get_absolute_url(), self.name))
 
 We've a configured application and models. It's time to map an URL to our view
 function::
@@ -160,29 +184,116 @@ And ``wiki/views.py``::
     #!/usr/bin/env python
     # views.py
 
+    import re
+
     from django.shortcuts import render_to_response
+    from django.http import HttpResponseRedirect
+    from django import forms
 
+    import transaction
     from django_zodb import views
+    from django_zodb import models
 
-    from wiki.models import Wiki, Page
+    from samples.wiki.models import Wiki, Page
+
+    wikiwords = re.compile(ur"\b([A-Z]\w+([A-Z]+\w+)+)")
+
+
+    class PageEditForm(forms.Form):
+        content = forms.CharField(widget=forms.Textarea)
+
+
+    class WikiView(views.View):
+        def __index__(self, request, context, root, subpath, traversed):
+            return HttpResponseRedirect("FrontPage")
+
+        def add(self, request, context, root, subpath, traversed):
+            try:
+                name = subpath[0]
+            except IndexError:
+                return HttpResponseRedirect("/")
+
+            if request.method == "POST":
+                form = PageEditForm(request.POST)
+                if form.is_valid():
+                    page = Page(form.cleaned_data['content'])
+                    root[name] = page
+                    return HttpResponseRedirect(page.get_absolute_url())
+            else:
+                form = PageEditForm()
+
+            page_data = {
+                'name': name,
+                'cancel_link': "javascript:history.go(-1)",
+                'form': form,
+            }
+            return render_to_response("edit.html", page_data)
+    views.registry.register(model=Wiki, view=WikiView())
+
 
     class PageView(views.View):
-        def __index__(self, request, context, subpath):
-            return render_to_response("page.html", {'context': context})
+        def __index__(self, request, context, root, subpath, traversed):
+            content = context.html()
 
-    views.registry.register(Page, PageView)
+            def check(match):
+                word = match.group(1)
+                if word in root:
+                    page = root[word]
+                    view_url = page.get_absolute_url()
+                    return '<a href="%s">%s</a>' % (view_url, word)
+                else:
+                    add_url = models.model_path(root, "", "add", word)
+                    return '<a href="%s">%s</a>' % (add_url, word)
+
+            content = wikiwords.sub(check, content)
+
+            page_data = {
+                'context': context,
+                'content': content,
+                'edit_link': context.get_absolute_url() + "/edit",
+                'root': root,
+            }
+            return render_to_response("page.html", page_data)
+
+        def edit(self, request, context, root, subpath, traversed):
+            context_path = models.model_path(context)
+
+            if request.method == "POST":
+                form = PageEditForm(request.POST)
+                if form.is_valid():
+                    context.content = form.cleaned_data['content']
+                    return HttpResponseRedirect(context_path)
+            else:
+                form = PageEditForm(initial={'content': context.content})
+
+            page_data = {
+                'name': context.name,
+                'context': context,
+                'cancel_link': context_path,
+                'form': form,
+            }
+            return render_to_response("edit.html", page_data)
+    views.registry.register(model=Page, view=PageView())
+
+
+    def create_frontpage(root):
+        frontpage = Page()
+        root["FrontPage"] = frontpage
+        return root
 
     def page(request, path):
-        return views.get_response(request, root=Wiki(), path=path)
+        root = models.get_root(Wiki, setup=create_frontpage)
+        return views.get_response_or_404(request, root=root, path=path)
+
 
 Traversal
 ---------
 
 From `Repoze.BFG documentation`_:
 
-    Traversal is a context finding mechanism. It is the act of finding a context and
-    a view name by walking over an object graph, starting from a root object, using
-    a request object as a source of path information.
+    Traversal is a context finding mechanism. It is the act of finding a context
+    and a view name by walking over an object graph, starting from a root
+    object, using a request object as a source of path information.
 
 Django-ZODB implements the traversal algorithm in function
 ``django_zodb.views.traverse()`` that receive two arguments:
@@ -190,32 +301,46 @@ Django-ZODB implements the traversal algorithm in function
 * ``root`` — an instance of Root model.
 * ``path`` — a string with the path to be traversed.
 
-And return a callable ``views.Viewer`` object that receive ``request`` as argument
-and returns a ``HttpResponse()``::
+And return a ``views.TraverseResult`` object with the following attributes:
 
-    def view_function(request, path):
-        viewer = traverse(root, path)
-        return viewer(request)
+* ``context`` - model object found by traversal.
+* ``method_name`` - a method name if exists.
+* ``subpath`` - aditional path arguments.
+* ``traversed`` - path elements 'traversed'.
+* ``root`` - root object.
 
+We've created some shortcuts functions to interpret these results:
 
-The module `django_zodb.views` also provides a utility function that raises an
-``Http404()`` when the ``path`` points to a non-existent model object. You can
-use this function to replace the following code structure::
+* ``get_response(request, root, path) -> HttpResponse``
+* ``get_response_or_404(request, root, path) -> HttpResponse or Http404``
 
-        from django_zodb import views
+These functions will traverse the model tree and call a registered view function
+that handle the context model object found. For example::
 
-        try:
-            context, view_name = traverse(root, path)
-        except django.views.ContextNotFound:
-            raise Http404("Page '%s' not found." % (path,))
+    def handle_page_objects(request, result):
+        # result is a TraverseResult object.
+        # result.context is a Page object found by traverse
+        return render_to_response(...)
 
-With a simple function call::
+    # Register handle_page_objects function to handle Page objects:
+    views.registry.register(model=Page, view=handle_page_objects)
 
-        from django_zodb.views import traverse_or_404
+You can register a ``views.View()`` instance to handle model objects::
 
-        context, view_name = traverse_or_404(root, path, "Object not found.")
+    class PageView(views.View):
+        # This is the 'default' handle (no method_name)
+        def __index__(self, request, context, root, subpath, traversed):
+            # ... context is a Page object ...
+            return render_to_response(...)
 
-You can read more about about traversal at `Repoze.BFG documentation`_
+        # called when method_name == "edit"
+        def edit(self, request, context, root, subpath, traversed):
+            # ... context is a Page object ...
+            return render_to_response(...)
+
+    # Register a PageView *instance* to handle Page objects
+    views.registry.register(model=Page, view=PageView())
+
 
 .. Connection Schemes:
 
@@ -344,8 +469,7 @@ TODO
 ``postgresql`` (``RelStorage``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. Warning:: Not Implemented yet.
-
+TODO
 
 .. _`Demo storage argument`:
 
@@ -363,13 +487,6 @@ XXX
 
 TODO
 ----
-
-::
-
-    - Implement models and views modules (++++)
-    - Finish 'samples.wiki' application (++)
-    - Update tutorial to reflect 'samples.wiki' source code (+)
-    - Add a "narrative" API reference in README.rst (or use docstrings?) (++)
 
 .. _Django-ZODB: http://triveos.github.com/django-zodb/
 .. _ZODB: http://pypi.python.org/pypi/ZODB3

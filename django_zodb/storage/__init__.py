@@ -22,6 +22,7 @@ log = logging.getLogger("django_zodb.storage")
 # Factory Base
 class AbstractStorageFactory(object):
     _storage_args = ()
+
     def __init__(self, config):
         self.demostorage = parse_bool(config.pop('demostorage', "false"))
         self.config = config
@@ -32,7 +33,7 @@ class AbstractStorageFactory(object):
         return BlobStorage(storage=storage, **kwargs)
 
     def get_base_storage(self, *args, **kwargs):
-        raise NotImplemented("Abstract class: %r, %r" % (args, kwargs)) # pragma: no cover abstract method code
+        raise NotImplemented("Abstract class: %r, %r" % (args, kwargs))  # pragma: no cover abstract method code
 
     def get_storage(self):
         settings = self.config.get_settings(self._storage_args)
@@ -96,7 +97,7 @@ def get_storage(config):
 
     return storage
 
+
 def get_storage_from_uri(uri):
     config = get_configuration_from_uri(uri)
     return get_storage(config)
-

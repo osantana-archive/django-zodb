@@ -52,7 +52,6 @@ class DatabaseFactory(object):
         else:
             raise ValueError("Database %r not found." % frag)
 
-
     def __call__(self):
         if self.config.get('scheme') == 'zconfig':
             return self._get_database_from_zconfig()
@@ -60,6 +59,7 @@ class DatabaseFactory(object):
         settings = self.config.get_settings(self._args)
         storage = get_storage(self.config)
         return DB(storage, **settings)
+
 
 def get_database_from_uris(uris):
     databases = {}
@@ -77,6 +77,7 @@ def get_database_from_uris(uris):
             ret = db
     return ret
 
+
 def get_database_by_name(name):
     from django.conf import settings
     if not hasattr(settings, 'ZODB') or not settings.ZODB:
@@ -87,3 +88,19 @@ def get_database_by_name(name):
     except KeyError:
         raise ValueError("Database %r not found in settings.ZODB." % name)
 
+
+class _ConnectionPool(object):
+    def __init__(self):
+        self._connections = {}
+
+    def get_connection(self, name):
+        if name not in self._connections:
+            database = get_database_by_name(name)
+            self._connections[name] = database.open()
+        return self._connections[name]
+
+connections = _ConnectionPool()
+
+
+def get_connection(name):
+    return connections.get_connection(name)
