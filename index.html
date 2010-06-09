@@ -1,142 +1,877 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<title>Django ZODB — Using Django and ZODB together.</title>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>
+      Django ZODB — Using Django and ZODB together.
+    </title>
     <script type='text/javascript' src='cufon-yui.js'></script>
     <script type='text/javascript' src='puritan.font.js'></script>
-    <!--
-    <script type="text/javascript">
-        Cufon.replace('h1');
-    </script>
-    -->
+    <link href="style.css" type="text/css" media="screen" rel="stylesheet" />
+  </head>
 
-	<style type="text/css">
+  <body>
+    <p>
+      <a href="http://github.com/triveos/django-zodb">
+        <img style="position: absolute; top: 0; right: 0; border: 0;"
+             src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"
+             alt="Fork me on GitHub" />
+      </a>
+    </p>
 
-body {
-    margin-top: 1.0em;
-    font-family: "Trebuchet MS", "Gill Sans", Verdana, Helvetica, Arial, sans-serif;
-    background-color: #ddd;
-    color: #444;
-}
+    <div id="container">
+      <div class="download">
+        <a href="http://github.com/triveos/django-zodb/zipball/master">
+          <img border="0"
+               width="90"
+               src="http://github.com/images/modules/download/zip.png" />
+        </a>
+        <a href="http://github.com/triveos/django-zodb/tarball/master">
+          <img border="0"
+               width="90"
+               src="http://github.com/images/modules/download/tar.png" />
+        </a>
+      </div>
 
-a { color: black; }
-
-#container {
-    margin: 0 auto;
-    width: 700px;
-}
-.download { float: right; }
-
-.header {
-    width: 350px;
-}
-
-h1 {
-    font-style: italic;
-    font-size: 3.8em;
-    margin-bottom: 3px;
-}
-.small { font-size: 0.7em; }
-h1 a {
-    color: #444;
-    text-decoration: none;
-    text-shadow: 0px -1px 0px black;
-}
-
-.description {
-    font-size: 0.8em;
-}
-
-h2 {
-    font-size: 1.5em;
-    color: black;
-}
-
-pre {
-    font-family: Monaco, monospace;
-    border: 1px solid #444;
-    padding: 10px;
-    background: #fff;
-}
-/*
-    h3 { text-align: center; color: #bb77a7; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-		pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-*/
-	</style>
-	
-</head>
-
-<body>
-  <p><a href="http://github.com/triveos/django-zodb"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a></p>
-  <div id="container">
-    <div class="download">
-      <a href="http://github.com/triveos/django-zodb/zipball/master"><img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/triveos/django-zodb/tarball/master"><img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
-      
-    <div class="header">
+      <div class="header">
         <h1><a href="http://github.com/triveos/django-zodb">Django <span class="small">ZODB</span></a></h1>
         <div class="description">Using Django and ZODB together</div>
+      </div>
+
+
+
+    <div class="document">
+      <div class="section" id="django-zodb">
+        <p>
+          <a class="reference external" href=
+          "http://triveos.github.com/django-zodb/">Django-ZODB</a> is a simple
+          <a class="reference external" href=
+          "http://pypi.python.org/pypi/ZODB3">ZODB</a> database backend for
+          <a class="reference external" href=
+          "http://www.djangoproject.com/">Django</a> Framework. It's strongly
+          inpired in <a class="reference external" href=
+          "http://docs.repoze.org/zodbconn/">repoze.zodbconn</a>.
+        </p>
+        <div class="warning">
+          <p class="first admonition-title">
+            Warning
+          </p>
+          <p class="last">
+            This is a Work-in-Progress project, so, there is a big chance that
+            some future modifications will break your application.
+          </p>
+        </div>
+        <div class="section" id="installation">
+          <h2>
+            Installation
+          </h2>
+          <p>
+            Django-ZODB requires the following packages:
+          </p>
+          <ul class="simple">
+            <li>
+              <a class="reference external" href=
+              "http://www.djangoproject.com/">Django</a> 1.1.1 or newer
+            </li>
+            <li>
+              <a class="reference external" href=
+              "http://pypi.python.org/pypi/ZODB3">ZODB</a> 3.10.0a2 or newer
+            </li>
+          </ul>
+          <p>
+            If you need to store your data in a RDBMS system you will need to
+            install the following packages too:
+          </p>
+          <ul class="simple">
+            <li>
+              <a class="reference external" href=
+              "http://pypi.python.org/pypi/RelStorage/">RelStorage</a> 1.4.0b3
+              or newer - ZODB storage system that store pickles in a relational
+              database (in a non-relational format).
+            </li>
+            <li>
+              <a class="reference external" href=
+              "http://pypi.python.org/pypi/MySQL-python/">MySQLdb</a> 1.2.3c1
+              or newer - required to connect <a class="reference external"
+              href="http://www.mysql.com/">MySQL</a> database.
+            </li>
+            <li>
+              <a class="reference external" href=
+              "http://pypi.python.org/pypi/psycopg2/">psycopg2</a> 2.2.0rc1 or
+              newer - required to connect <a class="reference external" href=
+              "http://www.postgresql.org/">PostgreSQL</a> database.
+            </li>
+            <li>
+              <a class="reference external" href=
+              "http://pypi.python.org/pypi/cx_Oracle/">cx_Oracle</a> 5.0.3 or
+              newer - required to connect <a class="reference external" href=
+              "http://www.oracle.com/">Oracle</a> database.
+            </li>
+          </ul>
+          <p>
+            Install from sources:
+          </p>
+          <pre class="literal-block">
+$ python setup.py install
+</pre>
+          <p>
+            Or from PyPI (using easy_install):
+          </p>
+          <pre class="literal-block">
+$ easy_install -U django-zodb
+</pre>
+        </div>
+        <div class="section" id="running-tests">
+          <h2>
+            Running tests
+          </h2>
+          <p>
+            Install <a class="reference external" href=
+            "http://pypi.python.org/pypi/coverage/">coverage</a> if you need
+            test coverage informations:
+          </p>
+          <pre class="literal-block">
+$ easy_install -U coverage
+</pre>
+          <p>
+            To run tests:
+          </p>
+          <pre class="literal-block">
+$ python manage.py test
+</pre>
+        </div>
+        <div class="section" id="configuration">
+          <h2>
+            Configuration
+          </h2>
+          <p>
+            You need to configure your <tt class=
+            "docutils literal">settings.py</tt> like this:
+          </p>
+<div class="highlight"><pre><span class="n">ZODB</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s">&#39;mysql://user@pass:localhost/relstorage?database_name=app&#39;</span><span class="p">,</span>
+        <span class="s">&#39;postgresql://user@passwd:pg_test:5678/app1_db&#39;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s">&#39;test&#39;</span><span class="p">:</span>      <span class="p">[</span> <span class="s">&#39;mem://&#39;</span><span class="p">,</span> <span class="s">&#39;mem://?database_name=catalog&#39;</span> <span class="p">],</span>
+    <span class="s">&#39;legacy_db&#39;</span><span class="p">:</span> <span class="p">[</span> <span class="s">&#39;zconfig:///srv/www/zodb_media.conf&#39;</span> <span class="p">],</span>
+    <span class="s">&#39;user_dir&#39;</span><span class="p">:</span>  <span class="p">[</span>
+        <span class="s">&#39;zeo://main_db.intranet:7899?database_name=main&#39;</span><span class="p">,</span>
+        <span class="s">&#39;zeo://catalog.intranet:7898?database_name=catalog&#39;</span>
+    <span class="p">],</span>
+    <span class="s">&#39;old_app&#39;</span><span class="p">:</span>   <span class="p">[</span>
+        <span class="s">&#39;file:///var/lib/sitedata.db?blob_dir=/var/lib/blob_dir&#39;</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+          <p>
+            You can find a list of schemes and connection adapters in <a class=
+            "reference internal" href="#connection-schemes">Connection
+            Schemes</a>.
+          </p>
+        </div>
+      </div>
+      <div class="section" id="creating-sample-application">
+        <h2>Creating sample application</h2>
+        <p>
+          I strongly believe in "learn by doing" strategy, so, let's create a
+          sample Wiki application that stores their pages in ZODB.
+        </p>
+        <p>
+          I suggest the reading of the following tutorials and articles if you
+          don't know ZODB or the Traversal Algorithm (that we will use in our
+          tutorial):
+        </p>
+        <ul class="simple">
+          <li>
+            <a class="reference external" href=
+            "http://www.zodb.org/documentation/tutorial.html">ZODB Tutorial</a>
+          </li>
+          <li>
+            <a class="reference external" href=
+            "http://www.zodb.org/documentation/guide/index.html">ZODB
+            Programming Guide</a>
+          </li>
+          <li>
+            <a class="reference external" href=
+            "http://docs.repoze.org/bfg/current/narr/traversal.html">Traversal</a>
+            chapter at <a class="reference external" href=
+            "http://docs.repoze.org/bfg/1.3/">Repoze.BFG documentation</a>.
+          </li>
+        </ul>
+        <div class="section" id="starting-django-project-and-application">
+          <h2>
+            Starting Django Project and Application
+          </h2>
+          <p>
+            We will start a project called <tt class=
+            "docutils literal">intranet</tt> with a Django application called
+            <tt class="docutils literal">wiki</tt>:
+          </p>
+          <pre class="literal-block">
+$ django-admin.py startproject intranet
+$ cd intranet
+intranet $ python manage.py startapp wiki
+</pre>
+          <p>
+            Now we need to modify our <tt class=
+            "docutils literal">settings.py</tt> to include this new application
+            and configure our database connections:
+          </p>
+<div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># settings.py</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">ROOTDIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+
+<span class="c"># No relational database...</span>
+<span class="n">DATABASE_ENGINE</span> <span class="o">=</span> <span class="s">&#39;sqlite3&#39;</span>
+<span class="n">DATABASE_NAME</span> <span class="o">=</span> <span class="s">&#39;:memory:&#39;</span>
+
+<span class="c"># append the following lines:</span>
+<span class="n">ZODB</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;file://&#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ROOTDIR</span><span class="p">,</span> <span class="s">&#39;wiki_db.fs&#39;</span><span class="p">)],</span>
+<span class="p">}</span>
+
+<span class="c"># ... other Django configurations ...</span>
+
+<span class="n">MIDDLEWARE_CLASSES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c"># ... other middlewares ...</span>
+
+    <span class="c"># If everything is ok (aka no exception raised) this</span>
+    <span class="c"># middleware will run a transaction.commit() on response.</span>
+    <span class="s">&#39;django_zodb.middleware.TransactionMiddleware&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&#39;django_zodb&#39;</span><span class="p">,</span>  <span class="c"># enable manage.py zshell command</span>
+    <span class="s">&#39;wiki&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+
+          <p>
+            Let's create our model classes. We will need a "root" object that
+            will store our objects (let's name it <tt class=
+            "docutils literal">Wiki</tt>) and a model to store the wiki pages
+            itself (<tt class="docutils literal">Page</tt>):
+          </p>
+
+
+<div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># wiki/models.py</span>
+
+<span class="kn">import</span> <span class="nn">markdown</span>  <span class="c"># http://pypi.python.org/pypi/Markdown</span>
+<span class="kn">from</span> <span class="nn">django_zodb</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="c"># models.RootContainer - Define a &#39;root&#39; object for database.</span>
+<span class="c"># This class defines __parent__ = __name__ = None</span>
+<span class="k">class</span> <span class="nc">Wiki</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">RootContainer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">pages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">pagename</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="p">[</span><span class="n">pagename</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;/wiki&quot;</span>
+
+    <span class="c"># It&#39;s possible to change models.RootContainer settings using Meta</span>
+    <span class="c"># configurations. Here we will explicitly define the default values</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">database</span> <span class="o">=</span> <span class="s">&#39;default&#39;</span>  <span class="c"># Optional. Default: &#39;default&#39;</span>
+        <span class="n">rootname</span> <span class="o">=</span> <span class="s">&#39;wiki&#39;</span>     <span class="c"># Optional. Default: RootClass.__name__.lower()</span>
+
+<span class="c"># models.Container - We will use Container to add support to subpages.</span>
+<span class="k">class</span> <span class="nc">Page</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s">&quot;Empty Page.&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Page</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">content</span>
+
+    <span class="k">def</span> <span class="nf">html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">md</span> <span class="o">=</span> <span class="n">markdown</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="n">safe_mode</span><span class="o">=</span><span class="s">&quot;escape&quot;</span><span class="p">,</span>
+                <span class="n">extensions</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;codehilite&#39;</span><span class="p">,</span> <span class="s">&#39;def_list&#39;</span><span class="p">,</span> <span class="s">&#39;fenced_code&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">md</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__name__</span>
+
+    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">u&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">__parent__</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+</pre></div>
+
+
+
+
+          <p>
+            We've a configured application and models. It's time to map an URL
+            to our view function:
+          </p>
+<div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># urls.py</span>
+
+<span class="c"># ... Django default URL configurations ...</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="c"># ... other URL mappings ...</span>
+    <span class="p">(</span><span class="s">r&#39;^(?P&amp;lt;path&amp;gt;.*)/?$&#39;</span><span class="p">,</span> <span class="s">&#39;wiki.views.page&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+          <p>
+            And <tt class="docutils literal">wiki/views.py</tt>:
+          </p>
+<div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># views.py</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render_to_response</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">HttpResponseRedirect</span>
+<span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">forms</span>
+
+<span class="kn">import</span> <span class="nn">transaction</span>
+<span class="kn">from</span> <span class="nn">django_zodb</span> <span class="kn">import</span> <span class="n">views</span>
+<span class="kn">from</span> <span class="nn">django_zodb</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="kn">from</span> <span class="nn">samples.wiki.models</span> <span class="kn">import</span> <span class="n">Wiki</span><span class="p">,</span> <span class="n">Page</span>
+
+<span class="n">wikiwords</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">ur&quot;\b([A-Z]\w+([A-Z]+\w+)+)&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">PageEditForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">Textarea</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">WikiView</span><span class="p">(</span><span class="n">views</span><span class="o">.</span><span class="n">View</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__index__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">subpath</span><span class="p">,</span> <span class="n">traversed</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="s">&quot;FrontPage&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">subpath</span><span class="p">,</span> <span class="n">traversed</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">subpath</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&quot;POST&quot;</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">PageEditForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+                <span class="n">page</span> <span class="o">=</span> <span class="n">Page</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;content&#39;</span><span class="p">])</span>
+                <span class="n">root</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">page</span>
+                <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">PageEditForm</span><span class="p">()</span>
+
+        <span class="n">page_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s">&#39;cancel_link&#39;</span><span class="p">:</span> <span class="s">&quot;javascript:history.go(-1)&quot;</span><span class="p">,</span>
+            <span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span><span class="s">&quot;edit.html&quot;</span><span class="p">,</span> <span class="n">page_data</span><span class="p">)</span>
+<span class="n">views</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">Wiki</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="n">WikiView</span><span class="p">())</span>
+
+
+<span class="k">class</span> <span class="nc">PageView</span><span class="p">(</span><span class="n">views</span><span class="o">.</span><span class="n">View</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__index__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">subpath</span><span class="p">,</span> <span class="n">traversed</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">html</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+            <span class="n">word</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
+                <span class="n">page</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="n">word</span><span class="p">]</span>
+                <span class="n">view_url</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span>
+                <span class="k">return</span> <span class="s">&#39;&amp;lt;a href=&quot;</span><span class="si">%s</span><span class="s">&quot;&amp;gt;</span><span class="si">%s</span><span class="s">&amp;lt;/a&amp;gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">view_url</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">add_url</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">model_path</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;add&quot;</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span>
+                <span class="k">return</span> <span class="s">&#39;&amp;lt;a href=&quot;</span><span class="si">%s</span><span class="s">&quot;&amp;gt;</span><span class="si">%s</span><span class="s">&amp;lt;/a&amp;gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">add_url</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span>
+
+        <span class="n">content</span> <span class="o">=</span> <span class="n">wikiwords</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+
+        <span class="n">page_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;context&#39;</span><span class="p">:</span> <span class="n">context</span><span class="p">,</span>
+            <span class="s">&#39;content&#39;</span><span class="p">:</span> <span class="n">content</span><span class="p">,</span>
+            <span class="s">&#39;edit_link&#39;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;/edit&quot;</span><span class="p">,</span>
+            <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="n">root</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span><span class="s">&quot;page.html&quot;</span><span class="p">,</span> <span class="n">page_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">edit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">subpath</span><span class="p">,</span> <span class="n">traversed</span><span class="p">):</span>
+        <span class="n">context_path</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">model_path</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&quot;POST&quot;</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">PageEditForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&#39;content&#39;</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">context_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">PageEditForm</span><span class="p">(</span><span class="n">initial</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;content&#39;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">content</span><span class="p">})</span>
+
+        <span class="n">page_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s">&#39;context&#39;</span><span class="p">:</span> <span class="n">context</span><span class="p">,</span>
+            <span class="s">&#39;cancel_link&#39;</span><span class="p">:</span> <span class="n">context_path</span><span class="p">,</span>
+            <span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span><span class="s">&quot;edit.html&quot;</span><span class="p">,</span> <span class="n">page_data</span><span class="p">)</span>
+<span class="n">views</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">Page</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="n">PageView</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">create_frontpage</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+    <span class="n">frontpage</span> <span class="o">=</span> <span class="n">Page</span><span class="p">()</span>
+    <span class="n">root</span><span class="p">[</span><span class="s">&quot;FrontPage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">frontpage</span>
+    <span class="k">return</span> <span class="n">root</span>
+
+<span class="k">def</span> <span class="nf">page</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">get_root</span><span class="p">(</span><span class="n">Wiki</span><span class="p">,</span> <span class="n">setup</span><span class="o">=</span><span class="n">create_frontpage</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">views</span><span class="o">.</span><span class="n">get_response_or_404</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+</pre></div>
+
+        </div>
+        <div class="section" id="traversal">
+          <h2>
+            Traversal
+          </h2>
+          <p>
+            From <a class="reference external" href=
+            "http://docs.repoze.org/bfg/1.3/">Repoze.BFG documentation</a>:
+          </p>
+          <blockquote>
+            Traversal is a context finding mechanism. It is the act of finding
+            a context and a view name by walking over an object graph, starting
+            from a root object, using a request object as a source of path
+            information.
+          </blockquote>
+          <p>
+            Django-ZODB implements the traversal algorithm in function
+            <tt class="docutils literal">django_zodb.views.traverse()</tt> that
+            receive two arguments:
+          </p>
+          <ul class="simple">
+            <li>
+              <tt class="docutils literal">root</tt> - an instance of Root
+              model.
+            </li>
+            <li>
+              <tt class="docutils literal">path</tt> - a string with the path
+              to be traversed.
+            </li>
+          </ul>
+          <p>
+            And return a <tt class="docutils literal">views.TraverseResult</tt>
+            object with the following attributes:
+          </p>
+          <ul class="simple">
+            <li>
+              <tt class="docutils literal">context</tt> - model object found by
+              traversal.
+            </li>
+            <li>
+              <tt class="docutils literal">method_name</tt> - a method name if
+              exists.
+            </li>
+            <li>
+              <tt class="docutils literal">subpath</tt> - aditional path
+              arguments.
+            </li>
+            <li>
+              <tt class="docutils literal">traversed</tt> - path elements
+              'traversed'.
+            </li>
+            <li>
+              <tt class="docutils literal">root</tt> - root object.
+            </li>
+          </ul>
+          <p>
+            We've created some shortcuts functions to interpret these results:
+          </p>
+          <ul class="simple">
+            <li>
+              <tt class="docutils literal">get_response(request, root, path)
+              <span class="pre">-&gt;</span> HttpResponse</tt>
+            </li>
+            <li>
+              <tt class="docutils literal">get_response_or_404(request, root,
+              path) <span class="pre">-&gt;</span> HttpResponse or Http404</tt>
+            </li>
+          </ul>
+          <p>
+            These functions will traverse the model tree and call a registered
+            view function that handle the context model object found. For
+            example:
+          </p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">handle_page_objects</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+    <span class="c"># result is a TraverseResult object.</span>
+    <span class="c"># result.context is a Page object found by traverse</span>
+    <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c"># Register handle_page_objects function to handle Page objects:</span>
+<span class="n">views</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">Page</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="n">handle_page_objects</span><span class="p">)</span>
+</pre></div>
+          <p>
+            You can register a <tt class="docutils literal">views.View()</tt>
+            instance to handle model objects:
+          </p>
+
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">PageView</span><span class="p">(</span><span class="n">views</span><span class="o">.</span><span class="n">View</span><span class="p">):</span>
+    <span class="c"># This is the &#39;default&#39; handle (no method_name)</span>
+    <span class="k">def</span> <span class="nf">__index__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">subpath</span><span class="p">,</span> <span class="n">traversed</span><span class="p">):</span>
+        <span class="c"># ... context is a Page object ...</span>
+        <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+    <span class="c"># called when method_name == &quot;edit&quot;</span>
+    <span class="k">def</span> <span class="nf">edit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">subpath</span><span class="p">,</span> <span class="n">traversed</span><span class="p">):</span>
+        <span class="c"># ... context is a Page object ...</span>
+        <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c"># Register a PageView *instance* to handle Page objects</span>
+<span class="n">views</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">Page</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="n">PageView</span><span class="p">())</span>
+</pre></div>
+
+
+<!-- Connection Schemes: -->
+        </div>
+        <div class="section" id="connection-schemes">
+          <h2>
+            Connection Schemes
+          </h2>
+          <p>
+            You can specify a ZODB connection using a URI. This URI is composed
+            of the following arguments:
+          </p>
+          <pre class="literal-block">
+scheme://username:password@host:port/path?arg1=foo&amp;arg2=bar#fraction
+</pre>
+          <p>
+            Depending on the chosen scheme some of these arguments are required
+            and others optional.
+          </p>
+          <div class="section" id="database-and-connection-settings">
+            <h3>
+              Database and Connection settings
+            </h3>
+            <p>
+              Arguments related to database connection settings. These
+              arguments are optional and must be passed as query argument in
+              URI (eg. <tt class="docutils literal"><span class=
+              "pre">?database_name=db&amp;...</span></tt>).
+            </p>
+            <ul class="simple">
+              <li>
+                <tt class="docutils literal">database_name</tt> - <tt class=
+                "docutils literal">str</tt> - database name used by ZODB.
+              </li>
+              <li>
+                <tt class="docutils literal">connection_cache_size</tt> -
+                <tt class="docutils literal">int</tt> - size (in bytes) of
+                database cache.
+              </li>
+              <li>
+                <tt class="docutils literal">connection_pool_size</tt> -
+                <tt class="docutils literal">int</tt> - size of connection
+                pool.
+              </li>
+            </ul>
+            <p>
+              These arguments are passed to <tt class=
+              "docutils literal">ZODB.DB.DB()</tt> constructor.
+            </p>
+          </div>
+          <div class="section" id="memory-storage-mem-zodb-mappingstorage">
+            <h3>
+              Memory Storage <tt class="docutils literal">mem:</tt> (<tt class=
+              "docutils literal">ZODB.MappingStorage</tt>)
+            </h3>
+            <p>
+              Returns an in-memory storage. It's basically a Python <tt class=
+              "docutils literal">dict()</tt> object.
+            </p>
+            <p>
+              Valid URIs:
+            </p>
+            <pre class="literal-block">
+mem
+mem:
+mem://
+mem?database_name=memory
+</pre>
+            <div class="section" id="optional-arguments">
+              <h4>
+                Optional Arguments
+              </h4>
+              <ul class="simple">
+                <li>See <a class="reference internal" href=
+                "#demo-storage-argument">Demo storage argument</a>.
+                </li>
+                <li>See <a class="reference internal" href=
+                "#blob-storage-arguments">Blob storage arguments</a>.
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="section" id="file-storage-file-zodb-filestorage">
+            <h3>
+              File Storage <tt class="docutils literal">file:</tt> (<tt class=
+              "docutils literal">ZODB.FileStorage</tt>)
+            </h3>
+            <p>
+              Returns a database stored in a file. You need to specify an
+              absolute path to the database file.
+            </p>
+            <p>
+              Valid URIs:
+            </p>
+            <pre class="literal-block">
+file:///tmp/Data.fs
+file:///tmp/main.db?database_name=file
+</pre>
+            <p>
+              Invalid URIs:
+            </p>
+            <pre class="literal-block">
+file://subdir/Data.fs
+</pre>
+            <div class="section" id="required-arguments">
+              <h4>
+                Required Arguments
+              </h4>
+              <ul class="simple">
+                <li>
+                  <tt class="docutils literal">path</tt> - <tt class=
+                  "docutils literal">str</tt> - absolute path to file where
+                  database will be stored.
+                </li>
+              </ul>
+            </div>
+            <div class="section" id="id1">
+              <h4>
+                Optional Arguments
+              </h4>
+              <ul class="simple">
+                <li>
+                  <tt class="docutils literal">create</tt> - <tt class=
+                  "docutils literal">bool</tt> - create database file if does
+                  not exist. Default: <tt class=
+                  "docutils literal">create=True</tt>.
+                </li>
+                <li>
+                  <tt class="docutils literal">read_only</tt> - <tt class=
+                  "docutils literal">bool</tt> - open storage only for reading.
+                  Default: <tt class="docutils literal">read_only=False</tt>.
+                </li>
+                <li>
+                  <tt class="docutils literal">quota</tt> - <tt class=
+                  "docutils literal">int</tt> - storage quota. Default:
+                  disabled (<tt class="docutils literal">quota=None</tt>).
+                </li>
+                <li>See <a class="reference internal" href=
+                "#demo-storage-argument">Demo storage argument</a>.
+                </li>
+                <li>See <a class="reference internal" href=
+                "#blob-storage-arguments">Blob storage arguments</a>.
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="section" id="zconfig-zodb-db-db">
+            <h3>
+              <tt class="docutils literal">zconfig:</tt> (<tt class=
+              "docutils literal">ZODB.DB.DB</tt>)
+            </h3>
+            <p>
+              Returns database (or databases) specified in ZCML configuration
+              file.
+            </p>
+            <div class="note">
+              <p class="first admonition-title">
+                Note
+              </p>
+              <p class="last">
+                This scheme has some small differences with other schemes
+                because it returns a DB object instead of a Storage. It's a
+                problem only in cases where you are creating the connection 'by
+                hand' instead of use a higher level API.
+              </p>
+            </div>
+            <p>
+              URIs Examples:
+            </p>
+            <pre class="literal-block">
+zconfig:///my/app/zodb_config.zcml
+zconfig:///my/app/zodb_config.zcml#main
+</pre>
+            <div class="section" id="id2">
+              <h4>
+                Required Arguments
+              </h4>
+              <ul class="simple">
+                <li>
+                  <tt class="docutils literal">path</tt> (<tt class=
+                  "docutils literal">str</tt>) - absolute path to file where
+                  database will be stored.
+                </li>
+              </ul>
+            </div>
+            <div class="section" id="optional-arguments-and-default-values">
+              <h4>
+                Optional Arguments (and default values)
+              </h4>
+              <ul class="simple">
+                <li>
+                  <tt class="docutils literal"><span class=
+                  "pre">#fragment=''</span></tt> (<tt class=
+                  "docutils literal">str</tt>) - Get only an specific database.
+                  By default (<tt class="docutils literal">''</tt>) get only
+                  the first database specified in configuration file. We don't
+                  use a query argument (<tt class=
+                  "docutils literal"><span class=
+                  "pre">&amp;arg=...</span></tt>) to specify database name to
+                  keep compatibility with <a class="reference external" href=
+                  "http://docs.repoze.org/zodbconn/">repoze.zodbconn</a>.
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="section" id="zeo-zeo-clientstorage-clientstorage">
+            <h3>
+              <tt class="docutils literal">zeo:</tt> (<tt class=
+              "docutils literal">ZEO.ClientStorage.ClientStorage</tt>)
+            </h3>
+            <p>
+              Returns a connection to a ZEO server.
+            </p>
+            <p>
+              TODO
+            </p>
+          </div>
+          <div class="section" id="mysql-relstorage">
+            <h3>
+              <tt class="docutils literal">mysql:</tt> (<tt class=
+              "docutils literal">RelStorage</tt>)
+            </h3>
+            <p>
+              Returns a database stored in a MySQL relational server. This
+              scheme uses <a class="reference external" href=
+              "http://pypi.python.org/pypi/RelStorage/">RelStorage</a> to
+              establish connection.
+            </p>
+            <p>
+              URIs Examples:
+            </p>
+            <pre class="literal-block">
+mysql://user:password@host:3306?compress=true#mysql_db_name
+mysql:///tmp/mysql.sock#local_database
+mysql://localhost#database
+</pre>
+            <p>
+              TODO
+            </p>
+          </div>
+          <div class="section" id="postgresql-relstorage">
+            <h3>
+              <tt class="docutils literal">postgresql</tt> (<tt class=
+              "docutils literal">RelStorage</tt>)
+            </h3>
+            <p>
+              TODO
+            </p>
+          </div>
+          <div class="section" id="id3">
+            <span id="demo-storage-argument"></span>
+            <h3>
+              Demo storage argument
+            </h3>
+            <p>
+              XXX
+            </p>
+          </div>
+          <div class="section" id="id4">
+            <span id="blob-storage-arguments"></span>
+            <h3>
+              Blob storage arguments
+            </h3>
+            <p>
+              XXX
+            </p>
+          </div>
+        </div>
+        <div class="section" id="todo">
+          <h2>
+            TODO
+          </h2>
+          <ul class="simple">
+            <li>Review my 'engrish' in documentation
+            </li>
+            <li>Test with Django &gt;= 1.2
+            </li>
+            <li>Finish this README (remove XXX)
+            </li>
+            <li>Create a new Website
+            </li>
+            <li>Release 0.2 version (and announce)
+            </li>
+            <li>Test Relstorage connections with Oracle and PostgreSQL
+            </li>
+            <li>Create more manage.py commands for ZODB management
+            </li>
+            <li>Create a Django-ORM layer (wow!)
+            </li>
+            <li>Evaluate some fulltext-search, catalog, etc integrations
+            </li>
+            <li>Fix performance issues (?)
+            </li>
+            <li>... and fix (tons of) bugs! :D
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
 
-    <h2>Dependencies</h2>
-    <ul>
-        <li><a href="http://www.djangoproject.com">Django</a> &gt;= 1.1</li>
-        <li><a href="http://pypi.python.org/pypi/ZODB3">ZODB3</a> &gt;= 3.9.3</li>
-        <li><a href="http://pypi.python.org/pypi/RelStorage">RelStorage</a> &gt;= 1.2.0 <span class="small">need tests with 1.4.0b1</span></li>
-        <li><a href="http://pypi.python.org/pypi/MySQL-python">MySQL Python</a> &gt;= 1.2.3c1</li>
-    </ul>
-
-    <h2>Install</h2>
-
-    <pre>
-$ # Download and install Django.
-$ easy_install ZODB3
-$ easy_install RelStorage
-$ easy_install MySQL-python
-$ wget http://github.com/triveos/django-zodb/tarball/master/ -O django-zodb.tar.gz
-$ tar xf django-zodb.tar.gz
-$ python setup.py install</pre>
 
 
-    <h2>License</h2>
-    <p>BSD License</p>
 
-    <h2>Authors</h2>
-    <ul>
+
+      <h2>License</h2>
+      <p>BSD License</p>
+
+      <h2>Authors</h2>
+      <ul>
         <li>Osvaldo Santana Neto (osantana@triveos.com) or @osantana on Twitter</li>
-        <li>Thiago Galesi (tgalesi@triveos.com) or @dsracoon on Twitter</li>
-    </ul>
+        <li>Thiago Galesi (tgalesi@triveos.com) or @dsracoon on Twitter </li>
+      </ul>
 
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/triveos/django-zodb/zipball/master">zip</a> or
-      <a href="http://github.com/triveos/django-zodb/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
+      <h2>Download</h2>
+      <p>
+        You can download this project in either
+        <a href="http://github.com/triveos/django-zodb/zipball/master">zip</a> or
+        <a href="http://github.com/triveos/django-zodb/tarball/master">tar</a> formats.
+      </p>
+      <p>
+        You can also clone the project with
+        <a href="http://git-scm.com">Git</a> by running:
+      </p>
+
       <pre>$ git clone git://github.com/triveos/django-zodb</pre>
-    </p>
-      
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/triveos/django-zodb">triveos/django-zodb</a>
-    </div>
-  </div>
 
-  <script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
+      <div class="footer">
+        Get the source code on GitHub:
+        <a href="http://github.com/triveos/django-zodb">triveos/django-zodb</a>
+      </div>
+
+
+    </div>
+
+
+
 <script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-11861604-1");
-pageTracker._trackPageview();
-} catch(err) {}</script>
-</body>
+//<![CDATA[
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    //]]>
+    </script><script type="text/javascript">
+//<![CDATA[
+    try {
+    var pageTracker = _gat._getTracker("UA-11861604-1");
+    pageTracker._trackPageview();
+    } catch(err) {}
+    //]]>
+    </script>
+  </body>
 </html>
