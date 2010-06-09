@@ -18,11 +18,11 @@ Django-ZODB requires the following packages:
 If you need to store your data in a RDBMS system you will need to install the
 following packages too:
 
-* `RelStorage`_ 1.4.0b3 or newer — ZODB storage system that store pickles in a
+* `RelStorage`_ 1.4.0b3 or newer - ZODB storage system that store pickles in a
   relational database (in a non-relational format).
-* `MySQLdb`_ 1.2.3c1 or newer — required to connect `MySQL`_ database.
-* `psycopg2`_ 2.2.0rc1 or newer — required to connect `PostgreSQL`_ database.
-* `cx_Oracle`_ 5.0.3 or newer — required to connect `Oracle`_ database.
+* `MySQLdb`_ 1.2.3c1 or newer - required to connect `MySQL`_ database.
+* `psycopg2`_ 2.2.0rc1 or newer - required to connect `PostgreSQL`_ database.
+* `cx_Oracle`_ 5.0.3 or newer - required to connect `Oracle`_ database.
 
 Install from sources::
 
@@ -298,8 +298,8 @@ From `Repoze.BFG documentation`_:
 Django-ZODB implements the traversal algorithm in function
 ``django_zodb.views.traverse()`` that receive two arguments:
 
-* ``root`` — an instance of Root model.
-* ``path`` — a string with the path to be traversed.
+* ``root`` - an instance of Root model.
+* ``path`` - a string with the path to be traversed.
 
 And return a ``views.TraverseResult`` object with the following attributes:
 
@@ -361,9 +361,9 @@ Database and Connection settings
 Arguments related to database connection settings. These arguments are optional
 and must be passed as query argument in URI (eg. ``?database_name=db&...``).
 
-* ``database_name`` — ``str`` — database name used by ZODB.
-* ``connection_cache_size`` — ``int`` — size (in bytes) of database cache.
-* ``connection_pool_size`` — ``int`` — size of connection pool.
+* ``database_name`` - ``str`` - database name used by ZODB.
+* ``connection_cache_size`` - ``int`` - size (in bytes) of database cache.
+* ``connection_pool_size`` - ``int`` - size of connection pool.
 
 These arguments are passed to ``ZODB.DB.DB()`` constructor.
 
@@ -403,16 +403,16 @@ Invalid URIs::
 Required Arguments
 ''''''''''''''''''
 
-* ``path`` — ``str`` — absolute path to file where database will be stored.
+* ``path`` - ``str`` - absolute path to file where database will be stored.
 
 Optional Arguments
 ''''''''''''''''''
 
-* ``create`` — ``bool`` — create database file if does not exist. Default:
+* ``create`` - ``bool`` - create database file if does not exist. Default:
   ``create=True``.
-* ``read_only`` – ``bool`` — open storage only for reading. Default:
+* ``read_only`` - ``bool`` - open storage only for reading. Default:
   ``read_only=False``.
-* ``quota`` — ``int`` — storage quota. Default: disabled (``quota=None``).
+* ``quota`` - ``int`` - storage quota. Default: disabled (``quota=None``).
 
 * See `Demo storage argument`_.
 * See `Blob storage arguments`_.
