@@ -28,7 +28,7 @@ setup(
     author_email='osantana@triveos.com',
     license="BSD",
     url='http://triveos.github.com/django-zodb/',
-    download_url='http://github.com/triveos/django-zodb/tarball/master',
+    download_url='http://github.com/triveos/django-zodb/downloads',
     package_dir={'django_zodb': 'django_zodb'},
     packages=find_packages(exclude=['tests']),
     install_requires=[
@@ -60,7 +60,7 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Topic :: Utilities'
+        'Topic :: Utilities',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 )
