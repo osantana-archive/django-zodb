@@ -10,7 +10,7 @@ import transaction
 
 class TransactionMiddleware(object):
     def process_exception(self, request, exception): #pylint:disable-msg=W0613
-        transaction.rollback()
+        transaction.abort()
 
     def process_response(self, request, response): #pylint:disable-msg=W0613
         transaction.commit()
