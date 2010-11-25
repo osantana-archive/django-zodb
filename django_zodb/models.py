@@ -61,7 +61,7 @@ def _setuproot(root):
     return root
 
 
-def get_root(rootclass, setup=_setuproot, *args, **kwargs):
+def get_root(rootclass, setup=_setuproot, commit=True, *args, **kwargs):
     try:
         database = rootclass.__database__
         rootname = rootclass.__rootname__
@@ -72,7 +72,8 @@ def get_root(rootclass, setup=_setuproot, *args, **kwargs):
 
     if rootname not in zodbroot:
         zodbroot[rootname] = setup(rootclass(*args, **kwargs))
-        transaction.commit()
+        if commit:
+            transaction.commit()
 
     return zodbroot[rootname]
 
