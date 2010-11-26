@@ -9,7 +9,6 @@
 
 import logging
 
-from ZODB.blob import BlobStorage
 from ZODB.DemoStorage import DemoStorage
 
 from django_zodb.config import parse_bool, get_configuration_from_uri
@@ -26,11 +25,6 @@ class AbstractStorageFactory(object):
     def __init__(self, config):
         self.demostorage = parse_bool(config.pop('demostorage', "false"))
         self.config = config
-
-    def _wrap_blob(self, storage, **kwargs):
-        if 'base_directory' not in kwargs:
-            return storage
-        return BlobStorage(storage=storage, **kwargs)
 
     def get_base_storage(self, *args, **kwargs):
         raise NotImplemented("Abstract class: %r, %r" % (args, kwargs))  # pragma: no cover abstract method code

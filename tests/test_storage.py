@@ -69,8 +69,8 @@ class StorageTests(TestCase):
 
     def test_file_storage_with_blob(self):
         from django_zodb.storage import get_storage_from_uri
-        storage = get_storage_from_uri("file:///tmp/test.db?blobstorage_dir=/tmp/blobdir&blobstorage_layout=bushy")
-        self.assertEquals(storage.__class__.__name__, "BlobStorage") # TODO: verify if new ZODB version change this
+        storage = get_storage_from_uri("file:///tmp/test.db?blob_dir=/tmp/blobdir")
+        self.assertEquals(storage.__class__.__name__, "FileStorage")
         self.assertEquals(storage.getName(), "/tmp/test.db")
         self.assertEquals(storage.fshelper.temp_dir, "/tmp/blobdir/tmp")
         storage.close()
@@ -105,7 +105,7 @@ class StorageTests(TestCase):
         return ret
 
     def test_zeo_storage_with_host(self):
-        uri = "zeo://localhost/ignored_path?blobstorage_dir=/tmp/blobdir&wait=true&wait_timeout=1"
+        uri = "zeo://localhost/ignored_path?blob_dir=/tmp/blobdir&wait=true&wait_timeout=1"
         self.assertEquals(self._fake_factories(uri), {
             'storage': {
                 'addr': ('localhost', 8090),
@@ -120,6 +120,7 @@ class StorageTests(TestCase):
         self.assertEquals(self._fake_factories(uri), {
             'storage': {
                 'addr': "/tmp/zeo.zdsock",
+                'blob_dir': "/tmp/blobdir",
                 'wait_timeout': 1,
                 'wait': True,
             },
@@ -143,7 +144,7 @@ class StorageTests(TestCase):
         uri = "mysql://"\
               "test_user:test_pass@"\
               "test_host"\
-              "?compress=1&create=false&read_only=true&blobstorage_dir=/tmp"\
+              "?compress=1&create=false&read_only=true&blob_dir=/tmp"\
               "&cache_servers=cache1,cache2,cache3"\
               "#test_dbname"
 

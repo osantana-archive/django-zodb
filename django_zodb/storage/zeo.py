@@ -33,7 +33,7 @@ class ZEOFactory(AbstractStorageFactory):
         ('username', str, 'username'),
         ('password', str, 'password'),
         ('realm', str, 'realm'),
-        ('blobstorage_dir', str, 'blob_dir'),
+        ('blob_dir', str, 'blob_dir'),
         ('shared_blob_dir', parse_bool, 'shared_blob_dir'),
         ('drop_cache_rather_verify', parse_bool, 'drop_cache_rather_verify'),
         ('blob_cache_size', int, 'blob_cache_size'),
