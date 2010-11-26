@@ -70,7 +70,7 @@ class StorageTests(TestCase):
     def test_file_storage_with_blob(self):
         from django_zodb.storage import get_storage_from_uri
         storage = get_storage_from_uri("file:///tmp/test.db?blobstorage_dir=/tmp/blobdir&blobstorage_layout=bushy")
-        self.assertEquals(storage.__class__.__name__, "FileStorage")
+        self.assertEquals(storage.__class__.__name__, "BlobStorage") # TODO: verify if new ZODB version change this
         self.assertEquals(storage.getName(), "/tmp/test.db")
         self.assertEquals(storage.fshelper.temp_dir, "/tmp/blobdir/tmp")
         storage.close()
