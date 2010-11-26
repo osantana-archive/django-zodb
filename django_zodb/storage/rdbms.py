@@ -17,13 +17,16 @@ class RelStorageFactory(AbstractStorageFactory):
     _storage = RelStorage
     _storage_args = (
         ('name', str, 'name'),
-        ('create', parse_bool, 'create'),
         ('read_only', parse_bool, 'read_only'),
         ('blob_dir', str, 'blob_dir'),
-        ('poll_interval', int, 'poll_interval'),
+        ('shared_blob_dir', bool, 'shared_blob_dir'),
+        ('blob_cache_size', int, 'blob_cache_size'),
+        ('blob_cache_size_check', int, 'blob_cache_size_check'),
+        ('blob_cache_chunk_size', int, 'blob_cache_chunk_size'),
         ('keep_history', parse_bool, 'keep_history'),
         ('replica_conf', str, 'replica_conf'),
         ('replica_timeout', float, 'replica_timeout'),
+        ('poll_interval', int, 'poll_interval'),
         ('pack_gc', parse_bool, 'pack_gc'),
         ('pack_dry_run', parse_bool, 'pack_dry_run'),
         ('pack_batch_timeout', float, 'pack_batch_timeout'),
@@ -34,6 +37,10 @@ class RelStorageFactory(AbstractStorageFactory):
         ('cache_prefix', str, 'cache_prefix'),
         ('cache_local_mb', int, 'cache_local_mb'),
         ('cache_delta_size_limit', int, 'cache_delta_size_limit'),
+        ('commit_lock_timeout', int, 'commit_lock_timeout'),
+        ('commit_lock_id', int, 'commit_lock_id'),
+        ('strict_tpc', bool, 'strict_tpc'),
+        ('create', parse_bool, 'create'),
     )
 
     def get_adapter(self, *args, **kwargs):
