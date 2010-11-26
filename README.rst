@@ -4,25 +4,26 @@ Django-ZODB
 `Django-ZODB`_ is a simple `ZODB`_ database backend for `Django`_ Framework.
 It's strongly inpired in `repoze.zodbconn`_.
 
-.. Warning:: This is a Work-in-Progress project, so, there is a big chance that
-   some future modifications will break your application.
-
 Installation
 ------------
 
 Django-ZODB requires the following packages:
 
-* `Django`_ 1.1.1 or newer
+* `Django`_ 1.2.3 or newer
 * `ZODB`_ 3.10.0a2 or newer
 
 If you need to store your data in a RDBMS system you will need to install the
 following packages too:
 
-* `RelStorage`_ 1.4.0b3 or newer - ZODB storage system that store pickles in a
+* `RelStorage`_ 1.5.0a1 or newer - ZODB storage system that store pickles in a
   relational database (in a non-relational format).
-* `MySQLdb`_ 1.2.3c1 or newer - required to connect `MySQL`_ database.
-* `psycopg2`_ 2.2.0rc1 or newer - required to connect `PostgreSQL`_ database.
+* `MySQLdb`_ 1.2.3 or newer - required to connect `MySQL`_ database.
+* `psycopg2`_ 2.3.0-beta1 or newer - required to connect `PostgreSQL`_ database.
 * `cx_Oracle`_ 5.0.3 or newer - required to connect `Oracle`_ database.
+
+.. Note:: Not tested with ``psycopg2`` and ``cx_Oracle`` but we believe that
+   everything will work as expected because we use ``RelStorage`` to connect to
+   the database.
 
 Install from sources::
 
@@ -78,6 +79,8 @@ ZODB or the Traversal Algorithm (that we will use in our tutorial):
 * `ZODB Tutorial`_
 * `ZODB Programming Guide`_
 * `Traversal`_ chapter at `Repoze.BFG documentation`_.
+
+.. Note:: Repoze.BFG is now known as `Pyramid`_.
 
 Starting Django Project and Application
 ---------------------------------------
@@ -413,7 +416,6 @@ Optional Arguments
 * ``read_only`` - ``bool`` - open storage only for reading. Default:
   ``read_only=False``.
 * ``quota`` - ``int`` - storage quota. Default: disabled (``quota=None``).
-
 * See `Demo storage argument`_.
 * See `Blob storage arguments`_.
 
@@ -456,7 +458,7 @@ TODO
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a database stored in a MySQL relational server. This scheme uses
-`RelStorage`_ to establish connection.
+`RelStorage`_ to establish connection with database server.
 
 URIs Examples::
 
@@ -464,19 +466,32 @@ URIs Examples::
     mysql:///tmp/mysql.sock#local_database
     mysql://localhost#database
 
-TODO
+Arguments
+'''''''''
+
+* See `Relational storage arguments`_.
 
 ``postgresql`` (``RelStorage``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TODO
+Returns a database stored in a PostgreSQL relational server. This scheme uses
+`RelStorage`_ to establish connection with database server.
+
+URIs Examples::
+
+    postgresql://user:password@host:5432#mysql_db_name
+
+Arguments
+'''''''''
+
+* See `Relational storage arguments`_.
 
 .. _`Demo storage argument`:
 
 Demo storage argument
 ~~~~~~~~~~~~~~~~~~~~~
 
-XXX
+* ``demostorage`` (``bool``) - Enable the ZODB's demo storage wrapper.
 
 .. _`Blob storage arguments`:
 
@@ -485,12 +500,25 @@ Blob storage arguments
 
 * ``blob_dir`` (``str``) - Directory where blob objects will be stored.
 
+.. _`Relational storage arguments`:
+
+Relational storage arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Django-ZODB uses `Relstorage`_ to connect to RDBMS and we preserve the same
+arguments used by RelStorage. The only difference between RelStorage`s arguments and Django-ZODB arguments is that we use "``_``" (underline) instead of "``-``" (dash). For example: the RelStorage's argument "``shared-blob-dir``" becomes "``shared_blob_dir``".
+
+Contributing
+------------
+
+Hi, I'm accepting all kind of collaborations to this project. You can open issues in our issue tracker, send me a patch, an e-mail message with your questions, etc.
+
+All kind of collaboration will be welcome.
+
 TODO
 ----
 
 * Review my 'engrish' in documentation
-* Test with Django >= 1.2
-* Finish this README (remove XXX)
 * Create a new Website
 * Release 0.2 version (and announce)
 * Test Relstorage connections with Oracle and PostgreSQL
@@ -499,7 +527,6 @@ TODO
 * Evaluate some fulltext-search, catalog, etc integrations
 * Fix performance issues (?)
 * ... and fix (tons of) bugs! :D
-
 
 .. _Django-ZODB: http://triveos.github.com/django-zodb/
 .. _ZODB: http://pypi.python.org/pypi/ZODB3
@@ -517,3 +544,4 @@ TODO
 .. _ZODB programming guide: http://www.zodb.org/documentation/guide/index.html
 .. _Traversal: http://docs.repoze.org/bfg/current/narr/traversal.html
 .. _Repoze.BFG documentation: http://docs.repoze.org/bfg/1.3/
+.. _Pyramid: http://docs.pylonshq.com/pyramid/dev/
