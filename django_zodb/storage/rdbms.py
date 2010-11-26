@@ -44,7 +44,7 @@ class RelStorageFactory(AbstractStorageFactory):
     )
 
     def get_adapter(self, *args, **kwargs):
-        raise NotImplemented("Abstract class: %r, %r" % (args, kwargs))  # pragma: no cover abstract method code
+        raise NotImplementedError("Abstract class: %r, %r" % (args, kwargs))  # pragma: no cover abstract method code
 
     def get_base_storage(self, **options):
         create = options.pop("create", True)  # HACK: missing in relstorage.options.Options(?)

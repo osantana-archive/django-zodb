@@ -27,7 +27,7 @@ class AbstractStorageFactory(object):
         self.config = config
 
     def get_base_storage(self, *args, **kwargs):
-        raise NotImplemented("Abstract class: %r, %r" % (args, kwargs))  # pragma: no cover abstract method code
+        raise NotImplementedError("Abstract class: %r, %r" % (args, kwargs))  # pragma: no cover abstract method code
 
     def get_storage(self):
         settings = self.config.get_settings(self._storage_args)

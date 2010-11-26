@@ -8,13 +8,15 @@
 
 import transaction
 
+
 class TransactionMiddleware(object):
     enabled = True
-    def process_exception(self, request, exception): #pylint:disable-msg=W0613
+
+    def process_exception(self, request, exception):  # pylint:disable-msg=W0613
         if self.enabled:
             transaction.abort()
 
-    def process_response(self, request, response): #pylint:disable-msg=W0613
+    def process_response(self, request, response):  # pylint:disable-msg=W0613
         if self.enabled:
             transaction.commit()
         return response

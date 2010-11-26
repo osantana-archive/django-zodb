@@ -16,8 +16,8 @@ ALL_CAP_RE = re.compile('([a-z0-9])([A-Z])')
 
 
 def camel_case_to_underline(name):
-    s1 = FIRST_CAP_RE.sub(r'\1_\2', name)
-    return ALL_CAP_RE.sub(r'\1_\2', s1).lower()
+    conv1 = FIRST_CAP_RE.sub(r'\1_\2', name)
+    return ALL_CAP_RE.sub(r'\1_\2', conv1).lower()
 
 
 def parse_uri(uri):
@@ -101,19 +101,19 @@ _safemaps = {}
 _must_quote = {}
 
 
-def url_quote(s, safe=''):
+def url_quote(url_orig, safe=''):
     cachekey = (safe, always_safe)
     try:
         safe_map = _safemaps[cachekey]
-        if not _must_quote[cachekey].search(s):
-            return s
+        if not _must_quote[cachekey].search(url_orig):
+            return url_orig
     except KeyError:
         safe += always_safe
         _must_quote[cachekey] = re.compile(r'[^%s]' % safe)
         safe_map = {}
         for i in range(256):
-            c = chr(i)
-            safe_map[c] = (c in safe) and c or ('%%%02X' % i)
+            char = chr(i)
+            safe_map[char] = (char in safe) and char or ('%%%02X' % i)
         _safemaps[cachekey] = safe_map
-    res = map(safe_map.__getitem__, s)
+    res = [safe_map[char] for char in url_orig]
     return ''.join(res)
