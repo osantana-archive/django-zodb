@@ -10,6 +10,7 @@
 import os
 
 from ZODB.MappingStorage import MappingStorage
+from ZODB.blob import BlobStorage
 from ZODB.FileStorage.FileStorage import FileStorage
 
 from django_zodb.config import parse_bool, REQUIRED
@@ -20,12 +21,15 @@ from django_zodb.storage import AbstractStorageFactory
 class MemoryFactory(AbstractStorageFactory):
     _storage = MappingStorage
     _storage_args = (
-        ('blobstorage_dir', str, 'base_directory'),
-        ('blobstorage_layout', str, 'layout'),
+        ('blob_dir', str, 'base_directory'),
     )
 
     def get_base_storage(self, **kwargs):
-        return self._wrap_blob(self._storage(), **kwargs)
+        storage = self._storage()
+        if 'base_directory' in kwargs:
+            storage = BlobStorage(storage=storage, **kwargs)
+        return storage
+
 
 
 class FileFactory(AbstractStorageFactory):
@@ -35,15 +39,8 @@ class FileFactory(AbstractStorageFactory):
         ('create', parse_bool, 'create'),
         ('read_only', parse_bool, 'read_only'),
         ('quota', int, 'quota'),
-        ('blobstorage_dir', str, 'base_directory'),
-        ('blobstorage_layout', str, 'layout'),
+        ('blob_dir', str, 'blob_dir'),
     )
 
     def get_base_storage(self, **kwargs):
-        arguments = {}
-        if 'base_directory' in kwargs:
-            arguments['base_directory'] = kwargs.pop("base_directory")
-        if 'layout' in kwargs:
-            arguments['layout'] = kwargs.pop("layout")
-        arguments['storage'] = self._storage(**kwargs)
-        return self._wrap_blob(**arguments)
+        return self._storage(**kwargs)

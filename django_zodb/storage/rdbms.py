@@ -19,7 +19,7 @@ class RelStorageFactory(AbstractStorageFactory):
         ('name', str, 'name'),
         ('create', parse_bool, 'create'),
         ('read_only', parse_bool, 'read_only'),
-        ('blobstorage_dir', str, 'blob_dir'),
+        ('blob_dir', str, 'blob_dir'),
         ('poll_interval', int, 'poll_interval'),
         ('keep_history', parse_bool, 'keep_history'),
         ('replica_conf', str, 'replica_conf'),

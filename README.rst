@@ -60,7 +60,7 @@ You need to configure your ``settings.py`` like this::
             'zeo://catalog.intranet:7898?database_name=catalog'
         ],
         'old_app':   [
-            'file:///var/lib/sitedata.db?blob_dir=/var/lib/blobstorage_dir'
+            'file:///var/lib/sitedata.db?blob_dir=/var/lib/blob_dir'
         ],
     }
 
@@ -483,7 +483,7 @@ XXX
 Blob storage arguments
 ~~~~~~~~~~~~~~~~~~~~~~
 
-XXX
+* ``blob_dir`` (``str``) - Directory where blob objects will be stored.
 
 TODO
 ----
