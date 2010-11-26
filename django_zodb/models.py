@@ -17,8 +17,8 @@ from django_zodb.database import get_connection
 
 
 class BaseRoot(type):
-    def __new__(cls, name, bases, attrs):
-        new_class = super(BaseRoot, cls).__new__(cls, name, bases, attrs)
+    def __new__(mcs, name, bases, attrs):
+        new_class = super(BaseRoot, mcs).__new__(mcs, name, bases, attrs)
 
         parents = [b for b in bases if isinstance(b, BaseRoot)]
         if not parents:
@@ -44,13 +44,13 @@ class Container(PersistentMapping):
     __parent__ = None
 
     def __setitem__(self, key, value):
-        super(Container, self).__setitem__(key, value)
+        PersistentMapping.__setitem__(self, key, value)
         value.__parent__ = self
         value.__name__ = key
 
     def __delitem__(self, key):
         self[key].__parent__ = None
-        super(Container, self).__delitem__(key)
+        PersistentMapping.__delitem__(self, key)
 
 
 class RootContainer(Container):

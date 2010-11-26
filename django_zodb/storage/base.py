@@ -31,7 +31,6 @@ class MemoryFactory(AbstractStorageFactory):
         return storage
 
 
-
 class FileFactory(AbstractStorageFactory):
     _storage = FileStorage
     _storage_args = (

@@ -8,10 +8,9 @@
 
 
 import code
-
 from django.core.management.base import NoArgsCommand
-
 from django_zodb.database import get_database_by_name
+
 
 class Command(NoArgsCommand):
     help = "Runs a Python interactive interpreter and automatically import get_database_by_name() function."
