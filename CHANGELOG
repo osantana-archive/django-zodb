@@ -1,0 +1,5 @@
+- 2010-11-29 - Osvaldo Santana Neto <osantana@triveos.com>
+
+  - Create CHANGELOG
+  - Using zc.buildout to deploy django-zodb
+  - Renaming some documentation files to use standard names
