@@ -35,6 +35,7 @@ MIDDLEWARE_CLASSES = (
 TEMPLATE_DIRS = (os.path.join(ROOTDIR, "templates"),)
 
 INSTALLED_APPS = (
+    'django_zodb',
     'samples.wiki',
 )
 

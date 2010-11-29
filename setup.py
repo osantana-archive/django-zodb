@@ -26,7 +26,7 @@ setup(
     name='django-zodb',
     version=__version__,
     description='Using Django and ZODB together',
-    long_description=long_description,
+    long_description=long_description.replace("{{ VERSION }}", __version__),
     author='Osvaldo Santana Neto',
     author_email='osantana@triveos.com',
     license="BSD",

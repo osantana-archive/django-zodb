@@ -1,5 +1,5 @@
-Django-ZODB
-===========
+Django-ZODB {{VERSION}}
+=======================
 
 `Django-ZODB`_ is a simple `ZODB`_ database backend for `Django`_ Framework.
 It's strongly inpired in `repoze.zodbconn`_.
