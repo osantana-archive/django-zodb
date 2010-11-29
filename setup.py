@@ -8,6 +8,9 @@
 
 import os
 
+import sys
+sys.path.append("src")
+
 from setuptools import setup, find_packages
 
 from django_zodb.version import __version__
@@ -29,11 +32,12 @@ setup(
     license="BSD",
     url='http://triveos.github.com/django-zodb/',
     download_url='http://github.com/triveos/django-zodb/downloads',
-    package_dir={'django_zodb': 'django_zodb'},
-    packages=find_packages(exclude=['tests']),
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
     install_requires=[
+        'distribute',
         'ZODB3>=3.10.0a2',
-        'Django>=1.1.1',
+        'Django>=1.2.3',
     ],
     extras_require={
         'MySQL': [
