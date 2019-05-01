@@ -31,10 +31,16 @@ class MemoryFactory(AbstractStorageFactory):
         return storage
 
 
+def norm_and_clean_path(path):
+    path = os.path.normpath(path)
+    if path.startswith("\\"):
+        path = path.lstrip("\\")  # fix path from windows file URI
+    return path
+
 class FileFactory(AbstractStorageFactory):
     _storage = FileStorage
     _storage_args = (
-        ('path', os.path.normpath, 'file_name', REQUIRED),
+        ('path', norm_and_clean_path, 'file_name', REQUIRED),
         ('create', parse_bool, 'create'),
         ('read_only', parse_bool, 'read_only'),
         ('quota', int, 'quota'),

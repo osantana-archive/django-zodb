@@ -15,7 +15,7 @@ from setuptools import setup, find_packages
 
 from django_zodb.version import __version__
 
-long_description = file(
+long_description = open(
     os.path.join(
         os.path.dirname(__file__),
             'README.rst'

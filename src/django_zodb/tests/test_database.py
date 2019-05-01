@@ -10,7 +10,7 @@
 from django.test import TestCase
 
 
-from testutils.tools import get_tool_path, turn_off_log
+from testutils.tools import get_tool_uri_path, turn_off_log, get_temp_dir_uri
 
 
 turn_off_log("ZODB.FileStorage")
@@ -58,19 +58,19 @@ class DatabaseTests(TestCase):
 
     def test_zconfig_database_1(self):
         from django_zodb.database import get_database_from_uris
-        db = get_database_from_uris(["zconfig://" + get_tool_path('zconfig.zcml') + "#temp2"])
+        db = get_database_from_uris(["zconfig://" + get_tool_uri_path('zconfig.zcml') + "#temp2"])
         self.assertFalse("temp1" in db.databases)
         self.assertTrue("temp2" in db.databases)
 
     def test_zconfig_database_2(self):
         from django_zodb.database import get_database_from_uris
-        db = get_database_from_uris(["zconfig://" + get_tool_path('zconfig.zcml')])
+        db = get_database_from_uris(["zconfig://" + get_tool_uri_path('zconfig.zcml')])
         self.assertTrue("temp1" in db.databases)
         self.assertFalse("temp2" in db.databases)
 
     def test_fail_zconfig_unknown_database(self):
         from django_zodb.database import get_database_from_uris
-        uri = "zconfig://" + get_tool_path('zconfig.zcml') + "#unknown"
+        uri = "zconfig://" + get_tool_uri_path('zconfig.zcml') + "#unknown"
         self.assertRaises(ValueError, get_database_from_uris, [uri])
 
     def test_fail_not_configured_db_1(self):
@@ -87,10 +87,10 @@ class DatabaseTests(TestCase):
 
     def test_open_file_database(self):
         self._clean_settings()
-        self._set_zodb({'db1': ['file:///tmp/test.db']})
+        self._set_zodb({'db1': ['file:///%s/test.db' % get_temp_dir_uri()]})
 
         from django_zodb.database import get_database_by_name
         db = get_database_by_name('db1')
         self.assertEquals("unnamed", db.database_name)
         self.assertTrue("unnamed" in db.databases)
-        self.assertEquals("/tmp/test.db", db.getName())
+        self.assertTrue(db.getName().endswith("test.db"))

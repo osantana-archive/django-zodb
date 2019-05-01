@@ -13,8 +13,7 @@ ROOTDIR = os.path.dirname(os.path.realpath(__file__))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = ':memory:'
+SECRET_KEY = "oaaukuyaziazhiazih78156178gziuziz"
 
 ZODB = {
     'default': ['file://' + os.path.join(ROOTDIR, "wiki_db.fs")],
@@ -38,5 +37,13 @@ INSTALLED_APPS = (
     'django_zodb',
     'samples.wiki',
 )
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:'
+    },
+}
 
 
