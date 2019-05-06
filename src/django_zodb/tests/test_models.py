@@ -24,7 +24,7 @@ ROOT.set('foo', FakeContainer())
 ROOT['foo']['bar'] = FakeContainer()
 ROOT['foo']['qux'] = FakeContainer()
 ROOT['foo']['qux']['quxx'] = FakeModel()
-ROOT.set(u'úñíçõdê', FakeContainer())
+ROOT.set('úñíçõdê', FakeContainer())
 
 from django_zodb import models
 
@@ -34,7 +34,7 @@ class MyRoot(models.Root):
 
 class ModelsTests(TestCase):
     def eq(self, a, b, *args, **kwargs):
-        return self.assertEquals(a, b, *args, **kwargs)
+        return self.assertEqual(a, b, *args, **kwargs)
 
     def raise_(self, err, func, *args, **kwargs):
         return self.assertRaises(err, func, *args, **kwargs)
@@ -44,10 +44,10 @@ class ModelsTests(TestCase):
         django.conf.settings._wrapped.ZODB = dic
 
     def test_model_path(self):
-        self.assertEquals(models.model_path(ROOT['foo']['qux']['quxx']), "/foo/qux/quxx")
-        self.assertEquals(models.model_path(ROOT), u"/")
-        self.assertEquals(models.model_path(ROOT[u'úñíçõdê']), u"/%C3%BA%C3%B1%C3%AD%C3%A7%C3%B5d%C3%AA")
-        self.assertEquals(models.model_path(ROOT['foo'], prepend="x"), u"x/foo")
+        self.assertEqual(models.model_path(ROOT['foo']['qux']['quxx']), "/foo/qux/quxx")
+        self.assertEqual(models.model_path(ROOT), "/")
+        self.assertEqual(models.model_path(ROOT['úñíçõdê']), "/%C3%BA%C3%B1%C3%AD%C3%A7%C3%B5d%C3%AA")
+        self.assertEqual(models.model_path(ROOT['foo'], prepend="x"), "x/foo")
 
     def test_root(self):
         self._set_zodb({"default": ["mem://"]})
@@ -55,20 +55,20 @@ class ModelsTests(TestCase):
         root1 = models.get_root(MyRoot, attr="1")
         root2 = models.get_root(MyRoot, attr="2")
 
-        self.assertEquals(id(root1), id(root2))
-        self.assertEquals(root1.attr, root2.attr)
-        self.assertEquals(root1.__name__, None)
-        self.assertEquals(root1.__parent__, None)
+        self.assertEqual(id(root1), id(root2))
+        self.assertEqual(root1.attr, root2.attr)
+        self.assertEqual(root1.__name__, None)
+        self.assertEqual(root1.__parent__, None)
 
     def test_remove_model(self):
         container = FakeContainer()
 
         ROOT['new'] = container
-        self.assertEquals(ROOT['new'], container)
-        self.assertEquals(container.__parent__, ROOT)
+        self.assertEqual(ROOT['new'], container)
+        self.assertEqual(container.__parent__, ROOT)
 
         del ROOT['new']
-        self.assertEquals(container.__parent__, None)
+        self.assertEqual(container.__parent__, None)
 
     def test_invalid_root(self):
         self._set_zodb({"default": ["mem://"]})

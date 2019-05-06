@@ -33,16 +33,16 @@ class DatabaseTests(TestCase):
     def test_mem_database(self):
         from django_zodb.database import get_database_from_uris
         db = get_database_from_uris(["mem://"])
-        self.assertEquals("unnamed", db.database_name)
+        self.assertEqual("unnamed", db.database_name)
         self.assertTrue("unnamed" in db.databases)
-        self.assertEquals("MappingStorage", db.getName())
+        self.assertEqual("MappingStorage", db.getName())
 
     def test_mem_demo_database(self):
         from django_zodb.database import get_database_from_uris
         db = get_database_from_uris(["mem://?demostorage=true"])
-        self.assertEquals("unnamed", db.database_name)
+        self.assertEqual("unnamed", db.database_name)
         self.assertTrue("unnamed" in db.databases)
-        self.assertEquals("DemoStorage('MappingStorage', 'MappingStorage')", db.getName())
+        self.assertEqual("DemoStorage('MappingStorage', 'MappingStorage')", db.getName())
 
     def test_fail_multi_db_same_name(self):
         from django_zodb.database import get_database_from_uris
@@ -51,10 +51,10 @@ class DatabaseTests(TestCase):
     def test_multi_db(self):
         from django_zodb.database import get_database_from_uris
         db = get_database_from_uris(["mem://", "mem://?database_name=catalog"])
-        self.assertEquals("unnamed", db.database_name)
+        self.assertEqual("unnamed", db.database_name)
         self.assertTrue("unnamed" in db.databases)
         self.assertTrue("catalog" in db.databases)
-        self.assertEquals("MappingStorage", db.getName())
+        self.assertEqual("MappingStorage", db.getName())
 
     def test_zconfig_database_1(self):
         from django_zodb.database import get_database_from_uris
@@ -91,6 +91,6 @@ class DatabaseTests(TestCase):
 
         from django_zodb.database import get_database_by_name
         db = get_database_by_name('db1')
-        self.assertEquals("unnamed", db.database_name)
+        self.assertEqual("unnamed", db.database_name)
         self.assertTrue("unnamed" in db.databases)
         self.assertTrue(db.getName().endswith("test.db"))

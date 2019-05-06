@@ -50,7 +50,7 @@ class _FactoriesRegistry(object):
         self.disabled[scheme] = str(reason)
 
     def available(self):
-        return self.enabled.keys()
+        return list(self.enabled.keys())
 
     def get(self, scheme):
         return self.enabled[scheme]

@@ -28,25 +28,25 @@ class StorageTests(TestCase):
 
     def test_disabled_reason(self):
         factories.disable("disabled", "reason")
-        self.assertEquals(factories.disable_reason("disabled"), "reason")
+        self.assertEqual(factories.disable_reason("disabled"), "reason")
         del factories.disabled['disabled'] # cleanup
 
     def test_mem_storage(self):
         from django_zodb.storage import get_storage_from_uri
         storage = get_storage_from_uri("mem://")
-        self.assertEquals(storage.__class__.__name__, "MappingStorage")
+        self.assertEqual(storage.__class__.__name__, "MappingStorage")
         storage.close()
 
     def test_mem_storage_demo(self):
         from django_zodb.storage import get_storage_from_uri
         storage = get_storage_from_uri("mem://?demostorage")
-        self.assertEquals(storage.__class__.__name__, "DemoStorage")
+        self.assertEqual(storage.__class__.__name__, "DemoStorage")
         storage.close()
 
     def test_file_storage(self):
         from django_zodb.storage import get_storage_from_uri
         storage = get_storage_from_uri("file:///tmp/test.db?database_name=file")
-        self.assertEquals(storage.__class__.__name__, "FileStorage")
+        self.assertEqual(storage.__class__.__name__, "FileStorage")
         self.assertRaises(TypeError, lambda: storage.fshelper.temp_dir)
         storage.close()
         remove_db_files()
@@ -70,9 +70,9 @@ class StorageTests(TestCase):
     def test_file_storage_with_blob(self):
         from django_zodb.storage import get_storage_from_uri
         storage = get_storage_from_uri("file:///tmp/test.db?blob_dir=/tmp/blobdir")
-        self.assertEquals(storage.__class__.__name__, "FileStorage")
-        self.assertEquals(storage.getName(), "/tmp/test.db")
-        self.assertEquals(storage.fshelper.temp_dir, "/tmp/blobdir/tmp")
+        self.assertEqual(storage.__class__.__name__, "FileStorage")
+        self.assertEqual(storage.getName(), "/tmp/test.db")
+        self.assertEqual(storage.fshelper.temp_dir, "/tmp/blobdir/tmp")
         storage.close()
 
         self.assertTrue(os.path.isdir('/tmp/blobdir'))
@@ -106,7 +106,7 @@ class StorageTests(TestCase):
 
     def test_zeo_storage_with_host(self):
         uri = "zeo://localhost/ignored_path?blob_dir=/tmp/blobdir&wait=true&wait_timeout=1"
-        self.assertEquals(self._fake_factories(uri), {
+        self.assertEqual(self._fake_factories(uri), {
             'storage': {
                 'addr': ('localhost', 8090),
                 'blob_dir': '/tmp/blobdir',
@@ -117,7 +117,7 @@ class StorageTests(TestCase):
 
     def test_zeo_storage_with_sock(self):
         uri = "zeo:///tmp/zeo.zdsock?blob_dir=/tmp/blobdir&wait=true&wait_timeout=1"
-        self.assertEquals(self._fake_factories(uri), {
+        self.assertEqual(self._fake_factories(uri), {
             'storage': {
                 'addr': "/tmp/zeo.zdsock",
                 'blob_dir': "/tmp/blobdir",
@@ -148,7 +148,7 @@ class StorageTests(TestCase):
               "&cache_servers=cache1,cache2,cache3"\
               "#test_dbname"
 
-        self.assertEquals(self._fake_factories(uri), {
+        self.assertEqual(self._fake_factories(uri), {
             'adapter': {
                 'user':     'test_user',
                 'passwd':   'test_pass',
@@ -174,7 +174,7 @@ class StorageTests(TestCase):
               "?create=false"\
               "#test_dbname"
 
-        self.assertEquals(self._fake_factories(uri), {
+        self.assertEqual(self._fake_factories(uri), {
             'adapter': {
                 'dsn': 'dbname=test_dbname host=test_host password=test_pass user=test_user',
             },

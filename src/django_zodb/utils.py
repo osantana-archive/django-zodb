@@ -8,7 +8,7 @@
 
 
 import re
-from urlparse import parse_qs
+from urllib.parse import parse_qs
 
 # http://stackoverflow.com/questions/1175208/
 FIRST_CAP_RE = re.compile('(.)([A-Z][a-z]+)')

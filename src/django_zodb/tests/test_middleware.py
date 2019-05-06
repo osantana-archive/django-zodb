@@ -25,7 +25,7 @@ class MiddlewareTests(TestCase):
         response = self.client.post("/wiki/FrontPage/edit", { 'content': 'value_commited' }, follow=True)
         transaction.abort() # force removal of uncommited changes
 
-        self.assertEquals('value_commited', get_root(Wiki)['FrontPage'].content)
+        self.assertEqual('value_commited', get_root(Wiki)['FrontPage'].content)
 
     def test_commit_disabled(self):
         import transaction
@@ -38,6 +38,6 @@ class MiddlewareTests(TestCase):
         transaction.abort() # force removal of uncommited changes
         TransactionMiddleware.enable()
 
-        self.assertNotEquals('value_uncommited', get_root(Wiki)['FrontPage'].content)
+        self.assertNotEqual('value_uncommited', get_root(Wiki)['FrontPage'].content)
 
 
