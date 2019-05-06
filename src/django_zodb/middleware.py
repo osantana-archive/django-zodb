@@ -6,10 +6,11 @@
 # See COPYING for license
 #
 
+from django.utils.deprecation import MiddlewareMixin
 import transaction
 
 
-class TransactionMiddleware(object):
+class TransactionMiddleware(MiddlewareMixin):
     enabled = True
 
     def process_exception(self, request, exception):  # pylint:disable-msg=W0613

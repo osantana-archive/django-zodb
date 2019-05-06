@@ -23,6 +23,8 @@ class MiddlewareTests(TestCase):
         from samples.wiki.models import Wiki
 
         response = self.client.post("/wiki/FrontPage/edit", { 'content': 'value_commited' }, follow=True)
+        assert response.status_code == 200
+
         transaction.abort() # force removal of uncommited changes
 
         self.assertEqual('value_commited', get_root(Wiki)['FrontPage'].content)

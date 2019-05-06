@@ -22,14 +22,6 @@ def camel_case_to_underline(name):
 
 def parse_uri(uri):
 
-    '''
-    # HACK to make it work for windows file paths !!
-    if uri.startswith("file://"):
-        return dict(scheme="file", path=uri[len("file://"):])
-    if uri.startswith("zconfig://"):
-        return dict(scheme="zconfig", path=uri[len("zconfig://"):])
-    '''
-
     def _push(ret, key, buf, next_key=None):
         if not buf:
             return next_key or key, []

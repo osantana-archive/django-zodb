@@ -8,6 +8,7 @@
 
 
 import os
+import urllib.parse
 
 from django.test import TestCase
 
@@ -69,17 +70,17 @@ class StorageTests(TestCase):
 
     def test_file_storage_with_blob(self):
         from django_zodb.storage import get_storage_from_uri
-        uri = "file://%stest645.db?blob_dir=%sblobdir" % (TEMP_DIR_URI, TEMP_DIR_URI)
+        uri = "file://%stest645.db?blob_dir=%sblobdir" % (TEMP_DIR_URI, urllib.parse.quote_plus(TEMP_DIR))
         storage = get_storage_from_uri(uri)
         self.assertEqual(storage.__class__.__name__, "FileStorage")
-        self.assertEqual(storage.getName(), "%stest356.db" % TEMP_DIR)
-        self.assertEqual(storage.fshelper.temp_dir, "%sblobdir/tmp" % TEMP_DIR)
+        self.assertEqual(storage.getName(), "%stest645.db" % TEMP_DIR)
+        self.assertEqual(storage.fshelper.temp_dir, "%sblobdir" % TEMP_DIR + os.sep + "tmp")
         storage.close()
 
         self.assertTrue(os.path.isdir('%sblobdir' % TEMP_DIR))
         self.assertTrue(os.path.isdir('%sblobdir/tmp' % TEMP_DIR))
-        self.assertTrue(os.path.exists('%sblobdir/.layout' % TEMP_DIR_URI))
-        self.assertEqual(open('%sblobdir/.layout' % TEMP_DIR_URI).read().strip(), 'bushy')
+        self.assertTrue(os.path.exists('%sblobdir/.layout' % TEMP_DIR))
+        self.assertEqual(open('%sblobdir/.layout' % TEMP_DIR).read().strip(), 'bushy')
 
     def _fake_factories(self, uri):
         from django_zodb.config import get_configuration_from_uri

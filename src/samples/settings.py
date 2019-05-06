@@ -15,6 +15,8 @@ TEMPLATE_DEBUG = DEBUG
 
 SECRET_KEY = "oaaukuyaziazhiazih78156178gziuziz"
 
+ALLOWED_HOSTS = ['testserver']
+
 ZODB = {
     'default': ['file://' + ("/" if not ROOTDIR.startswith("/") else "") + os.path.join(ROOTDIR, "wiki_db.fs").replace("\\", "/")],
 }
@@ -40,7 +42,7 @@ TEMPLATES = [
 
 
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django_zodb.middleware.TransactionMiddleware',
 )

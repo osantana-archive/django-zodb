@@ -16,6 +16,7 @@ import random
 
 
 def make_uri_path(path):
+    """Convert Unix or Windows filepath to a format compatible with uris"""
     path = path.replace("\\", "/")
     if path[0] != "/":
         path = "/" + path  # for windows URI path
@@ -23,11 +24,18 @@ def make_uri_path(path):
         path = path + "/"
     return path
 
+def unmake_uri_path(uri):
+    """Restore (Windows) filepath from uri format."""
+    if os.sep == "\\":
+        uri = uri.lstrip("/")
+    return os.path.normpath(uri)
+
 
 TOOLS_DIR = os.path.dirname(os.path.realpath(__file__))
 TOOLS_DIR_URI = make_uri_path(TOOLS_DIR)
 
 TEMP_DIR = os.path.join(tempfile.gettempdir(), "djangozodb_" + str(random.randint(100, 1000)))
+TEMP_DIR += os.sep
 os.mkdir(TEMP_DIR)
 TEMP_DIR_URI = make_uri_path(TEMP_DIR)
 
