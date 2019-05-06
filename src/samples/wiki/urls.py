@@ -6,8 +6,10 @@
 # See COPYING for license
 #
 
-from django.conf.urls.defaults import *
+from django.urls import re_path
 
-urlpatterns = patterns('',
-    (r'^(?P<path>.*)/?$', 'samples.wiki.views.page'),
-)
+import samples.wiki.views
+
+urlpatterns = [
+     re_path(r'^(?P<path>.*)/?$', samples.wiki.views.page)
+]

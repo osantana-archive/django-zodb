@@ -23,17 +23,17 @@ class ViewsTests(TestCase):
 
     def test_split_path(self):
         from django_zodb.views import split_path as sp
-        self.eq(repr(sp("foo/bar/baz")), "(u'foo', u'bar', u'baz')")
-        self.eq(repr(sp("/foo/bar/baz")), "(u'foo', u'bar', u'baz')")
-        self.eq(repr(sp("foo/bar/baz/")), "(u'foo', u'bar', u'baz')")
-        self.eq(repr(sp("/foo/bar/baz/")), "(u'foo', u'bar', u'baz')")
-        self.eq(repr(sp("/foo/b%20r/baz/")), "(u'foo', u'b r', u'baz')")
-        self.eq(repr(sp("/foo/b%20r///baz/")), "(u'foo', u'b r', u'baz')")
-        self.eq(repr(sp("/foo/b%20r/./baz/")), "(u'foo', u'b r', u'baz')")
-        self.eq(repr(sp("/foo/b%20r/./baz/.")), "(u'foo', u'b r', u'baz')")
-        self.eq(repr(sp("/foo/b%20r/../baz/")), "(u'foo', u'baz')")
-        self.eq(repr(sp("/foo/b%20r/../baz/..")), "(u'foo',)")
-        self.eq(repr(sp("/foo/bar/b%C3%BDz/")), "(u'foo', u'bar', u'b\\xfdz')")
+        self.eq(repr(sp("foo/bar/baz")), "('foo', 'bar', 'baz')")
+        self.eq(repr(sp("/foo/bar/baz")), "('foo', 'bar', 'baz')")
+        self.eq(repr(sp("foo/bar/baz/")), "('foo', 'bar', 'baz')")
+        self.eq(repr(sp("/foo/bar/baz/")), "('foo', 'bar', 'baz')")
+        self.eq(repr(sp("/foo/b%20r/baz/")), "('foo', 'b r', 'baz')")
+        self.eq(repr(sp("/foo/b%20r///baz/")), "('foo', 'b r', 'baz')")
+        self.eq(repr(sp("/foo/b%20r/./baz/")), "('foo', 'b r', 'baz')")
+        self.eq(repr(sp("/foo/b%20r/./baz/.")), "('foo', 'b r', 'baz')")
+        self.eq(repr(sp("/foo/b%20r/../baz/")), "('foo', 'baz')")
+        self.eq(repr(sp("/foo/b%20r/../baz/..")), "('foo',)")
+        self.eq(repr(sp("/foo/bar/b%C3%BDz/")), "('foo', 'bar', 'býz')")
         self.raise_(TypeError, sp, "/foo/bar/b%C3%00z/")
 
     def test_traverse_result(self):
@@ -102,7 +102,7 @@ class ViewsTests(TestCase):
         views.registry.register(model=FakeContainer, view=_ContainerView())
 
         response = views.get_response_or_404("request", ROOT, "/foo/bar/baz/subpath/1")
-        self.eq(response, "baz response: 'request' subpath: u'subpath/1'")
+        self.eq(response, "baz response: 'request' subpath: 'subpath/1'")
 
     def test_fail_get_response_or_404_view_not_found(self):
         from django_zodb import views

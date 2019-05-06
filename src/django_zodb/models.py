@@ -88,8 +88,6 @@ def _lineage(model):
 
 
 def _quote_segment(segment):
-    if segment.__class__ is str:  # isinstance slighly slower (~15%)
-        return url_quote(segment.encode('utf-8'))
     return url_quote(segment)
 
 

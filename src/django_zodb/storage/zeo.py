@@ -7,7 +7,7 @@
 #
 
 
-from .ZEO.ClientStorage import ClientStorage
+from ZEO.ClientStorage import ClientStorage
 
 from django_zodb.config import parse_bool
 from django_zodb.storage.base import AbstractStorageFactory

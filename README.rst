@@ -105,7 +105,7 @@ configure our database connections::
     DATABASE_ENGINE = 'sqlite3'
     DATABASE_NAME = ':memory:'
 
-    # append the following lines:
+    # append the following lines (on Windows use file:///c:/xxx with 3 slashes):
     ZODB = {
         'default': ['file://' + os.path.join(ROOTDIR, 'wiki_db.fs')],
     }

@@ -16,22 +16,35 @@ TEMPLATE_DEBUG = DEBUG
 SECRET_KEY = "oaaukuyaziazhiazih78156178gziuziz"
 
 ZODB = {
-    'default': ['file://' + os.path.join(ROOTDIR, "wiki_db.fs")],
+    'default': ['file://' + ("/" if not ROOTDIR.startswith("/") else "") + os.path.join(ROOTDIR, "wiki_db.fs").replace("\\", "/")],
 }
 
 ROOT_URLCONF = 'samples.urls'
 
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
-    'django.template.loaders.app_directories.load_template_source',
-)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(ROOTDIR, "templates")],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django_zodb.middleware.TransactionMiddleware',
 )
 
-TEMPLATE_DIRS = (os.path.join(ROOTDIR, "templates"),)
 
 INSTALLED_APPS = (
     'django_zodb',
