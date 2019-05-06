@@ -8,10 +8,3 @@
 
 import django
 django.setup()
-
-'''
-from django.apps.registry import apps
-apps.check_apps_ready()
-
-aaaa
-'''

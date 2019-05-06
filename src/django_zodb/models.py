@@ -6,7 +6,7 @@
 # See COPYING for license
 #
 
-
+import abc
 import transaction
 
 from persistent import Persistent
@@ -16,7 +16,7 @@ from django_zodb.utils import url_quote, camel_case_to_underline
 from django_zodb.database import get_connection
 
 
-class BaseRoot(type):
+class BaseRoot(abc.ABCMeta):
     def __new__(mcs, name, bases, attrs):
         new_class = super(BaseRoot, mcs).__new__(mcs, name, bases, attrs)
 

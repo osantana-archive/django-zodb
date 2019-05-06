@@ -84,11 +84,8 @@ def split_path(path):
         elif segment == '..':
             clean.pop()
         else:
-            try:
-                clean.append(segment.decode('utf-8'))
-            except UnicodeDecodeError:
-                raise TypeError('Could not decode path segment %r using the '
-                                'UTF-8 decoding scheme' % segment)
+            assert isinstance(segment, str)
+            clean.append(segment)
     return tuple(clean)
 
 
