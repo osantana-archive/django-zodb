@@ -6,4 +6,4 @@
 # See COPYING for license
 #
 
-__version__ = "0.3dev"
+__version__ = "0.4"
