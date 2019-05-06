@@ -3,3 +3,10 @@
   - Create CHANGELOG
   - Using zc.buildout to deploy django-zodb
   - Renaming some documentation files to use standard names
+
+
+- 2019-05-06 - Pascal Chambon <pythoniks@gmail.com>
+
+  - Make lib support (only) python3 and django>2
+
+

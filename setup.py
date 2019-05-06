@@ -37,7 +37,7 @@ setup(
     install_requires=[
         'distribute',
         'ZODB3>=3.10.0a2',
-        'Django>=1.2.3',
+        'Django>=2.0',
     ],
     extras_require={
         'MySQL': [
