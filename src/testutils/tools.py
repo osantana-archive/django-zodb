@@ -12,19 +12,23 @@ import shutil
 import subprocess
 import logging
 import tempfile
+import random
 
 
 def make_uri_path(path):
     path = path.replace("\\", "/")
     if path[0] != "/":
         path = "/" + path  # for windows URI path
+    if path[-1] != "/":
+        path = path + "/"
     return path
 
 
 TOOLS_DIR = os.path.dirname(os.path.realpath(__file__))
 TOOLS_DIR_URI = make_uri_path(TOOLS_DIR)
 
-TEMP_DIR = tempfile.gettempdir()
+TEMP_DIR = os.path.join(tempfile.gettempdir(), "djangozodb_" + str(random.randint(100, 1000)))
+os.mkdir(TEMP_DIR)
 TEMP_DIR_URI = make_uri_path(TEMP_DIR)
 
 
@@ -45,10 +49,6 @@ def remove_db_files():
 
 def get_tool_uri_path(filename):
     return os.path.join(TOOLS_DIR_URI, filename).replace("\\", "/")
-
-
-def get_temp_dir_uri():
-    return TEMP_DIR_URI
 
 
 def start_zeo(mode='host'):

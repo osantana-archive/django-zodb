@@ -10,21 +10,13 @@
 from django.test import TestCase
 
 
-from testutils.tools import get_tool_uri_path, turn_off_log, get_temp_dir_uri
+from testutils.tools import get_tool_uri_path, turn_off_log, TEMP_DIR_URI
 
 
 turn_off_log("ZODB.FileStorage")
 turn_off_log("ZEO.zrpc")
 
 class DatabaseTests(TestCase):
-    def _clean_settings(self):
-        import django.conf
-        if hasattr(django.conf.settings, 'ZODB'):
-            del django.conf.settings._wrapped.ZODB
-
-    def _set_zodb(self, dic):
-        import django.conf
-        django.conf.settings._wrapped.ZODB = dic
 
     def test_fail_unknown_scheme(self):
         from django_zodb.database import get_database_from_uris
@@ -74,23 +66,20 @@ class DatabaseTests(TestCase):
         self.assertRaises(ValueError, get_database_from_uris, [uri])
 
     def test_fail_not_configured_db_1(self):
-        self._clean_settings()
 
         from django_zodb.database import get_database_by_name
         self.assertRaises(ValueError, get_database_by_name, 'db1')
 
-        self._set_zodb({})
-        self.assertRaises(ValueError, get_database_by_name, 'db1')
+        with self.settings(ZODB={}):
+            self.assertRaises(ValueError, get_database_by_name, 'db1')
 
-        self._set_zodb({'db1': ['mem://']})
-        self.assertRaises(ValueError, get_database_by_name, 'db2')
+        with self.settings(ZODB={'db1': ['mem://']}):
+            self.assertRaises(ValueError, get_database_by_name, 'db2')
 
     def test_open_file_database(self):
-        self._clean_settings()
-        self._set_zodb({'db1': ['file:///%s/test.db' % get_temp_dir_uri()]})
-
-        from django_zodb.database import get_database_by_name
-        db = get_database_by_name('db1')
-        self.assertEqual("unnamed", db.database_name)
-        self.assertTrue("unnamed" in db.databases)
-        self.assertTrue(db.getName().endswith("test.db"))
+        with self.settings(ZODB={'db1': ['file://%stest123.db' % TEMP_DIR_URI]}):
+            from django_zodb.database import get_database_by_name
+            db = get_database_by_name('db1')
+            self.assertEqual("unnamed", db.database_name)
+            self.assertTrue("unnamed" in db.databases)
+            self.assertTrue(db.getName().endswith("test123.db"))

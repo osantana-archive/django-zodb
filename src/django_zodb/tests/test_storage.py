@@ -11,7 +11,7 @@ import os
 
 from django.test import TestCase
 
-from testutils.tools import remove_db_files
+from testutils.tools import remove_db_files, TEMP_DIR_URI, TEMP_DIR
 
 from django_zodb.storage import factories
 
@@ -45,7 +45,7 @@ class StorageTests(TestCase):
 
     def test_file_storage(self):
         from django_zodb.storage import get_storage_from_uri
-        storage = get_storage_from_uri("file:///tmp/test.db?database_name=file")
+        storage = get_storage_from_uri("file://%stest34.db?database_name=file" % TEMP_DIR_URI)
         self.assertEqual(storage.__class__.__name__, "FileStorage")
         self.assertRaises(TypeError, lambda: storage.fshelper.temp_dir)
         storage.close()
@@ -53,7 +53,7 @@ class StorageTests(TestCase):
 
     def test_fail_file_storage_with_invalid_arguments_1(self):
         from django_zodb.storage import get_storage_from_uri
-        self.assertRaises(ValueError, get_storage_from_uri, "file:///tmp/test.db?create=true&read_only=true")
+        self.assertRaises(ValueError, get_storage_from_uri, "file://%stest76.db?create=true&read_only=true" % TEMP_DIR_URI)
 
     def test_fail_file_storage_with_invalid_arguments_2(self):
         from django_zodb.storage import get_storage_from_uri
@@ -65,20 +65,21 @@ class StorageTests(TestCase):
 
     def test_fail_file_storage_with_invalid_arguments_4(self):
         from django_zodb.storage import get_storage_from_uri
-        self.assertRaises(TypeError, get_storage_from_uri, "file:///tmp/test.db?quota=not_int")
+        self.assertRaises(TypeError, get_storage_from_uri, "file://%stest355.db?quota=not_int" % TEMP_DIR_URI)
 
     def test_file_storage_with_blob(self):
         from django_zodb.storage import get_storage_from_uri
-        storage = get_storage_from_uri("file:///tmp/test.db?blob_dir=/tmp/blobdir")
+        uri = "file://%stest645.db?blob_dir=%sblobdir" % (TEMP_DIR_URI, TEMP_DIR_URI)
+        storage = get_storage_from_uri(uri)
         self.assertEqual(storage.__class__.__name__, "FileStorage")
-        self.assertEqual(storage.getName(), "/tmp/test.db")
-        self.assertEqual(storage.fshelper.temp_dir, "/tmp/blobdir/tmp")
+        self.assertEqual(storage.getName(), "%stest356.db" % TEMP_DIR)
+        self.assertEqual(storage.fshelper.temp_dir, "%sblobdir/tmp" % TEMP_DIR)
         storage.close()
 
-        self.assertTrue(os.path.isdir('/tmp/blobdir'))
-        self.assertTrue(os.path.isdir('/tmp/blobdir/tmp'))
-        self.assertTrue(os.path.exists('/tmp/blobdir/.layout'))
-        self.assertEqual(open('/tmp/blobdir/.layout').read().strip(), 'bushy')
+        self.assertTrue(os.path.isdir('%sblobdir' % TEMP_DIR))
+        self.assertTrue(os.path.isdir('%sblobdir/tmp' % TEMP_DIR))
+        self.assertTrue(os.path.exists('%sblobdir/.layout' % TEMP_DIR_URI))
+        self.assertEqual(open('%sblobdir/.layout' % TEMP_DIR_URI).read().strip(), 'bushy')
 
     def _fake_factories(self, uri):
         from django_zodb.config import get_configuration_from_uri
@@ -105,22 +106,22 @@ class StorageTests(TestCase):
         return ret
 
     def test_zeo_storage_with_host(self):
-        uri = "zeo://localhost/ignored_path?blob_dir=/tmp/blobdir&wait=true&wait_timeout=1"
+        uri = "zeo://localhost/ignored_path?blob_dir=%sblobdir&wait=true&wait_timeout=1" % TEMP_DIR_URI
         self.assertEqual(self._fake_factories(uri), {
             'storage': {
                 'addr': ('localhost', 8090),
-                'blob_dir': '/tmp/blobdir',
+                'blob_dir': '%sblobdir' % TEMP_DIR_URI,
                 'wait_timeout': 1,
                 'wait': True,
             },
         })
 
     def test_zeo_storage_with_sock(self):
-        uri = "zeo:///tmp/zeo.zdsock?blob_dir=/tmp/blobdir&wait=true&wait_timeout=1"
+        uri = "zeo://%szeo.zdsock?blob_dir=%sblobdir&wait=true&wait_timeout=1" % (TEMP_DIR_URI, TEMP_DIR_URI)
         self.assertEqual(self._fake_factories(uri), {
             'storage': {
-                'addr': "/tmp/zeo.zdsock",
-                'blob_dir': "/tmp/blobdir",
+                'addr': "%szeo.zdsock" % TEMP_DIR_URI,
+                'blob_dir': "%sblobdir" % TEMP_DIR_URI,
                 'wait_timeout': 1,
                 'wait': True,
             },

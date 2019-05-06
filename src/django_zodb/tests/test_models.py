@@ -39,26 +39,21 @@ class ModelsTests(TestCase):
     def raise_(self, err, func, *args, **kwargs):
         return self.assertRaises(err, func, *args, **kwargs)
 
-    def _set_zodb(self, dic):
-        import django.conf
-        django.conf.settings._wrapped.ZODB = dic
-
     def test_model_path(self):
         self.assertEqual(models.model_path(ROOT['foo']['qux']['quxx']), "/foo/qux/quxx")
         self.assertEqual(models.model_path(ROOT), "/")
-        self.assertEqual(models.model_path(ROOT['úñíçõdê']), "/%C3%BA%C3%B1%C3%AD%C3%A7%C3%B5d%C3%AA")
+        self.assertEqual(models.model_path(ROOT['úñíçõdê']), "/%FA%F1%ED%E7%F5d%EA")
         self.assertEqual(models.model_path(ROOT['foo'], prepend="x"), "x/foo")
 
     def test_root(self):
-        self._set_zodb({"default": ["mem://"]})
+        with self.settings(ZODB={"default": ["mem://"]}):
+            root1 = models.get_root(MyRoot, attr="1")
+            root2 = models.get_root(MyRoot, attr="2")
 
-        root1 = models.get_root(MyRoot, attr="1")
-        root2 = models.get_root(MyRoot, attr="2")
-
-        self.assertEqual(id(root1), id(root2))
-        self.assertEqual(root1.attr, root2.attr)
-        self.assertEqual(root1.__name__, None)
-        self.assertEqual(root1.__parent__, None)
+            self.assertEqual(id(root1), id(root2))
+            self.assertEqual(root1.attr, root2.attr)
+            self.assertEqual(root1.__name__, None)
+            self.assertEqual(root1.__parent__, None)
 
     def test_remove_model(self):
         container = FakeContainer()
@@ -71,9 +66,9 @@ class ModelsTests(TestCase):
         self.assertEqual(container.__parent__, None)
 
     def test_invalid_root(self):
-        self._set_zodb({"default": ["mem://"]})
+        with self.settings(ZODB={"default": ["mem://"]}):
 
-        class InvalidRoot(object):
-            pass
+            class InvalidRoot(object):
+                pass
 
-        self.assertRaises(TypeError, models.get_root, InvalidRoot)
+            self.assertRaises(TypeError, models.get_root, InvalidRoot)

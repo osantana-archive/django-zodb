@@ -34,7 +34,6 @@ class ViewsTests(TestCase):
         self.eq(repr(sp("/foo/b%20r/../baz/")), "('foo', 'baz')")
         self.eq(repr(sp("/foo/b%20r/../baz/..")), "('foo',)")
         self.eq(repr(sp("/foo/bar/b%C3%BDz/")), "('foo', 'bar', 'býz')")
-        self.raise_(TypeError, sp, "/foo/bar/b%C3%00z/")
 
     def test_traverse_result(self):
         from django_zodb.views import traverse as tr
