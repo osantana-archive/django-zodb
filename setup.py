@@ -35,7 +35,6 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages('src'),
     install_requires=[
-        'distribute',
         'ZODB3>=3.10.0a2',
         'Django>=2.0',
     ],
