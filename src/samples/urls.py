@@ -6,9 +6,11 @@
 # See COPYING for license
 #
 
-from django.conf.urls.defaults import *
+from django.urls import re_path, include
 
-urlpatterns = patterns('',
-    (r'^wiki/', include('samples.wiki.urls')),
-)
+import samples.wiki.urls
+
+urlpatterns = [
+    re_path(r'^wiki/', include(samples.wiki.urls)),
+]
 

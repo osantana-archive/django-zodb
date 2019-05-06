@@ -15,7 +15,7 @@ from setuptools import setup, find_packages
 
 from django_zodb.version import __version__
 
-long_description = file(
+long_description = open(
     os.path.join(
         os.path.dirname(__file__),
             'README.rst'
@@ -35,9 +35,8 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages('src'),
     install_requires=[
-        'distribute',
         'ZODB3>=3.10.0a2',
-        'Django>=1.2.3',
+        'Django>=2.0',
     ],
     extras_require={
         'MySQL': [

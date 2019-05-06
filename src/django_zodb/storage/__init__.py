@@ -50,7 +50,7 @@ class _FactoriesRegistry(object):
         self.disabled[scheme] = str(reason)
 
     def available(self):
-        return self.enabled.keys()
+        return list(self.enabled.keys())
 
     def get(self, scheme):
         return self.enabled[scheme]
@@ -64,7 +64,7 @@ class _FactoriesRegistry(object):
             module = __import__(package_name + "." + module_name, fromlist=module_name)
             factory_class = getattr(module, factory_name)
             self.enable(scheme, factory_class)
-        except (ImportError, AttributeError, IndexError), ex:
+        except (ImportError, AttributeError, IndexError) as ex:
             self.disable(scheme, ex)
 
 factories = _FactoriesRegistry()

@@ -46,4 +46,4 @@ class Page(models.Model):
         return self.__name__
 
     def get_absolute_url(self):
-        return u"/".join((self.__parent__.get_absolute_url(), self.name))
+        return "/".join((self.__parent__.get_absolute_url(), self.name))

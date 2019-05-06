@@ -13,30 +13,52 @@ ROOTDIR = os.path.dirname(os.path.realpath(__file__))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = ':memory:'
+SECRET_KEY = "oaaukuyaziazhiazih78156178gziuziz"
+
+ALLOWED_HOSTS = ['testserver']
 
 ZODB = {
-    'default': ['file://' + os.path.join(ROOTDIR, "wiki_db.fs")],
+    'default': ['file://' + ("/" if not ROOTDIR.startswith("/") else "") + os.path.join(ROOTDIR, "wiki_db.fs").replace("\\", "/")],
 }
 
 ROOT_URLCONF = 'samples.urls'
 
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
-    'django.template.loaders.app_directories.load_template_source',
-)
 
-MIDDLEWARE_CLASSES = (
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(ROOTDIR, "templates")],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+
+
+MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django_zodb.middleware.TransactionMiddleware',
 )
 
-TEMPLATE_DIRS = (os.path.join(ROOTDIR, "templates"),)
 
 INSTALLED_APPS = (
     'django_zodb',
     'samples.wiki',
 )
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:'
+    },
+}
 
 

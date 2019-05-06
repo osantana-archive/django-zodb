@@ -27,7 +27,7 @@ class Configuration(object):
     def _parse_uri(self, uri):
         config = parse_uri(uri)
         query = config.pop('query', {})
-        for key, values in query.items():
+        for key, values in list(query.items()):
             if key in config:
                 raise ValueError("Cannot override %r argument." % key)
             value = values[-1]  # only last argument

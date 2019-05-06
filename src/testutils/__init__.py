@@ -5,3 +5,6 @@
 # Copyright (c) 2009, Triveos Tecnologia Ltda.
 # See COPYING for license
 #
+
+import django
+django.setup()

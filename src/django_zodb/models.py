@@ -6,7 +6,7 @@
 # See COPYING for license
 #
 
-
+import abc
 import transaction
 
 from persistent import Persistent
@@ -16,7 +16,7 @@ from django_zodb.utils import url_quote, camel_case_to_underline
 from django_zodb.database import get_connection
 
 
-class BaseRoot(type):
+class BaseRoot(abc.ABCMeta):
     def __new__(mcs, name, bases, attrs):
         new_class = super(BaseRoot, mcs).__new__(mcs, name, bases, attrs)
 
@@ -35,8 +35,8 @@ class Model(Persistent):
     __parent__ = None
 
 
-class Root(Model):
-    __metaclass__ = BaseRoot
+class Root(Model, metaclass=BaseRoot):
+    pass
 
 
 class Container(PersistentMapping):
@@ -53,8 +53,8 @@ class Container(PersistentMapping):
         PersistentMapping.__delitem__(self, key)
 
 
-class RootContainer(Container):
-    __metaclass__ = BaseRoot
+class RootContainer(Container, metaclass=BaseRoot):
+    pass
 
 
 def _setuproot(root):
@@ -88,22 +88,20 @@ def _lineage(model):
 
 
 def _quote_segment(segment):
-    if segment.__class__ is unicode:  # isinstance slighly slower (~15%)
-        return url_quote(segment.encode('utf-8'))
     return url_quote(segment)
 
 
 def model_path(model, prepend=None, *elements):
-    path = [location.__name__ or u'' for location in _lineage(model)]
+    path = [location.__name__ or '' for location in _lineage(model)]
     path.reverse()
     path.extend(elements)
 
     if any(path):
-        ret = u'/'.join(_quote_segment(segment) for segment in path)
+        ret = '/'.join(_quote_segment(segment) for segment in path)
     else:
-        ret = u'/'
+        ret = '/'
 
     if prepend is not None:
-        return unicode(prepend) + ret
+        return str(prepend) + ret
 
     return ret

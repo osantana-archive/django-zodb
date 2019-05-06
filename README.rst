@@ -9,7 +9,7 @@ Installation
 
 Django-ZODB requires the following packages:
 
-* `Django`_ 1.2.3 or newer
+* `Django`_ 2.0 or newer
 * `ZODB`_ 3.10.0a2 or newer
 
 If you need to store your data in a RDBMS system you will need to install the
@@ -105,7 +105,7 @@ configure our database connections::
     DATABASE_ENGINE = 'sqlite3'
     DATABASE_NAME = ':memory:'
 
-    # append the following lines:
+    # append the following lines (on Windows, use file:///c:/xxx with 3 slashes):
     ZODB = {
         'default': ['file://' + os.path.join(ROOTDIR, 'wiki_db.fs')],
     }
@@ -357,6 +357,9 @@ following arguments::
 
 Depending on the chosen scheme some of these arguments are required and
 others optional.
+
+On Windows, file uris shall loook like "file:///c:/my/path", with 3 slashes after the scheme.
+
 
 Database and Connection settings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

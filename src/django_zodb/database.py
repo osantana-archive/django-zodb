@@ -7,7 +7,7 @@
 #
 
 
-from cStringIO import StringIO
+from io import StringIO
 
 from ZODB.DB import DB
 import ZConfig
@@ -41,7 +41,8 @@ class DatabaseFactory(object):
     def _get_database_from_zconfig(self):
         settings = self.config.get_settings(self._zconfig_args)
 
-        path = settings['path']
+        from django_zodb.storage.base import norm_and_clean_path
+        path = norm_and_clean_path(settings['path'])
         frag = settings.get('frag', '')
 
         schema = ZConfig.loadSchemaFile(StringIO(self._schema_xml_template))

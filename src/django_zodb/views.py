@@ -7,7 +7,7 @@
 #
 
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from django.http import Http404
 
@@ -49,7 +49,7 @@ class TraverseResult(object):
         self._results = {
             'root': None,
             'context': None,
-            'method_name': u"",
+            'method_name': "",
             'subpath': (),
             'traversed': (),
         }
@@ -78,17 +78,14 @@ def split_path(path):
     path = path.strip('/')
     clean = []
     for segment in path.split('/'):
-        segment = urllib.unquote(segment)
+        segment = urllib.parse.unquote(segment)
         if not segment or segment == '.':
             continue
         elif segment == '..':
             clean.pop()
         else:
-            try:
-                clean.append(segment.decode('utf-8'))
-            except UnicodeDecodeError:
-                raise TypeError('Could not decode path segment %r using the '
-                                'UTF-8 decoding scheme' % segment)
+            assert isinstance(segment, str)
+            clean.append(segment)
     return tuple(clean)
 
 
@@ -112,7 +109,7 @@ def traverse(root, path):
         except (TypeError, IndexError, KeyError):
             break
     else:
-        segment = u""
+        segment = ""
 
     result = TraverseResult(
         context=context,
@@ -133,7 +130,7 @@ def get_response(request, root, path):
 def get_response_or_404(request, root, path):
     try:
         return get_response(request, root, path)
-    except TraversalError, ex:
+    except TraversalError as ex:
         raise Http404("%r not found (%s)." % (path, ex))
 
 

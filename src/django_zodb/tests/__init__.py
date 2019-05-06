@@ -6,9 +6,9 @@
 # See COPYING for license
 #
 
-from test_utils import URIParseTests
-from test_storage import StorageTests
-from test_database import DatabaseTests
-from test_views import ViewsTests
-from test_models import ModelsTests
-from test_middleware import MiddlewareTests
+from .test_utils import URIParseTests
+from .test_storage import StorageTests
+from .test_database import DatabaseTests
+from .test_views import ViewsTests
+from .test_models import ModelsTests
+from .test_middleware import MiddlewareTests

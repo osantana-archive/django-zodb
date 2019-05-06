@@ -8,7 +8,7 @@
 
 from django.test import TestCase
 
-from test_models import ROOT, FakeContainer
+from .test_models import ROOT, FakeContainer
 
 class ViewsTests(TestCase):
     def tearDown(self):
@@ -16,25 +16,24 @@ class ViewsTests(TestCase):
         views.registry.clean()
 
     def eq(self, a, b, *args, **kwargs):
-        return self.assertEquals(a, b, *args, **kwargs)
+        return self.assertEqual(a, b, *args, **kwargs)
 
     def raise_(self, err, func, *args, **kwargs):
         return self.assertRaises(err, func, *args, **kwargs)
 
     def test_split_path(self):
         from django_zodb.views import split_path as sp
-        self.eq(repr(sp("foo/bar/baz")), "(u'foo', u'bar', u'baz')")
-        self.eq(repr(sp("/foo/bar/baz")), "(u'foo', u'bar', u'baz')")
-        self.eq(repr(sp("foo/bar/baz/")), "(u'foo', u'bar', u'baz')")
-        self.eq(repr(sp("/foo/bar/baz/")), "(u'foo', u'bar', u'baz')")
-        self.eq(repr(sp("/foo/b%20r/baz/")), "(u'foo', u'b r', u'baz')")
-        self.eq(repr(sp("/foo/b%20r///baz/")), "(u'foo', u'b r', u'baz')")
-        self.eq(repr(sp("/foo/b%20r/./baz/")), "(u'foo', u'b r', u'baz')")
-        self.eq(repr(sp("/foo/b%20r/./baz/.")), "(u'foo', u'b r', u'baz')")
-        self.eq(repr(sp("/foo/b%20r/../baz/")), "(u'foo', u'baz')")
-        self.eq(repr(sp("/foo/b%20r/../baz/..")), "(u'foo',)")
-        self.eq(repr(sp("/foo/bar/b%C3%BDz/")), "(u'foo', u'bar', u'b\\xfdz')")
-        self.raise_(TypeError, sp, "/foo/bar/b%C3%00z/")
+        self.eq(repr(sp("foo/bar/baz")), "('foo', 'bar', 'baz')")
+        self.eq(repr(sp("/foo/bar/baz")), "('foo', 'bar', 'baz')")
+        self.eq(repr(sp("foo/bar/baz/")), "('foo', 'bar', 'baz')")
+        self.eq(repr(sp("/foo/bar/baz/")), "('foo', 'bar', 'baz')")
+        self.eq(repr(sp("/foo/b%20r/baz/")), "('foo', 'b r', 'baz')")
+        self.eq(repr(sp("/foo/b%20r///baz/")), "('foo', 'b r', 'baz')")
+        self.eq(repr(sp("/foo/b%20r/./baz/")), "('foo', 'b r', 'baz')")
+        self.eq(repr(sp("/foo/b%20r/./baz/.")), "('foo', 'b r', 'baz')")
+        self.eq(repr(sp("/foo/b%20r/../baz/")), "('foo', 'baz')")
+        self.eq(repr(sp("/foo/b%20r/../baz/..")), "('foo',)")
+        self.eq(repr(sp("/foo/bar/b%C3%BDz/")), "('foo', 'bar', 'býz')")
 
     def test_traverse_result(self):
         from django_zodb.views import traverse as tr
@@ -49,23 +48,23 @@ class ViewsTests(TestCase):
             self.eq(res.traversed, kw['tr'], "tr: %r != %r" % (res.traversed, kw['tr']))
             self.eq(type(res.traversed), tuple)
 
-        _eq(tr(ROOT, ""), root=ROOT, ctx=ROOT, mn=u"", sp=(), tr=())
-        _eq(tr(ROOT, "foo"), root=ROOT, ctx=ROOT['foo'], mn=u"", sp=(), tr=(u'foo',))
-        _eq(tr(ROOT, "/notfound/"), root=ROOT, ctx=ROOT, mn=u"notfound", sp=(), tr=(u'notfound',))
-        _eq(tr(ROOT, "./foo"), root=ROOT, ctx=ROOT['foo'], mn=u"", sp=(), tr=(u'foo',))
-        _eq(tr(ROOT, "/foo"), root=ROOT, ctx=ROOT['foo'], mn=u"", sp=(), tr=(u'foo',))
-        _eq(tr(ROOT, "/foo/bar"), root=ROOT, ctx=ROOT['foo']['bar'], mn=u"", sp=(), tr=(u'foo', u'bar'))
-        _eq(tr(ROOT, "/foo/bar/baz"), root=ROOT, ctx=ROOT['foo']['bar'], mn=u"baz", sp=(), tr=(u'foo', u'bar', u'baz'))
-        _eq(tr(ROOT, "/foo/bar/baz/subpath/1/2"), root=ROOT, ctx=ROOT['foo']['bar'], mn=u"baz", sp=(u'subpath', u'1', u'2'), tr=(u'foo', u'bar', u'baz'))
-        _eq(tr(ROOT, "/@@foo/bar/baz/"), root=ROOT, ctx=ROOT, mn=u"foo", sp=(u'bar', u'baz'), tr=(u'@@foo',))
-        _eq(tr(ROOT, "/foo/@@bar/baz/"), root=ROOT, ctx=ROOT['foo'], mn=u"bar", sp=(u'baz',), tr=(u'foo', u'@@bar'))
-        _eq(tr(ROOT, "/foo/bar/@@baz/subpath/1/2"), root=ROOT, ctx=ROOT['foo']['bar'], mn=u"baz", sp=(u'subpath', u'1', u'2'), tr=(u'foo', u'bar', u'@@baz'))
-        _eq(tr(ROOT, "/foo/bar/baz/@@subpath/1/2"), root=ROOT, ctx=ROOT['foo']['bar'], mn=u"baz", sp=(u'@@subpath', u'1', u'2'), tr=(u'foo', u'bar', u'baz'))
-        _eq(tr(ROOT, "/foo/qux/"), root=ROOT, ctx=ROOT['foo']['qux'], mn=u"", sp=(), tr=(u'foo', u'qux'))
-        _eq(tr(ROOT, "/foo/qux/quxx"), root=ROOT, ctx=ROOT['foo']['qux']['quxx'], mn=u"", sp=(), tr=(u'foo', u'qux', u'quxx'))
-        _eq(tr(ROOT, "/foo/qux/quxx/quxxx"), root=ROOT, ctx=ROOT['foo']['qux']['quxx'], mn=u"quxxx", sp=(), tr=(u'foo', u'qux', u'quxx', u'quxxx'))
-        _eq(tr(ROOT, "/foo/qux/quxx/quxxx/sub"), root=ROOT, ctx=ROOT['foo']['qux']['quxx'], mn=u"quxxx", sp=(u'sub',), tr=(u'foo', u'qux', u'quxx', u'quxxx'))
-        _eq(tr(ROOT['foo'], "/foo"), root=ROOT['foo'], ctx=ROOT['foo'], mn=u"foo", sp=(), tr=(u'foo',))
+        _eq(tr(ROOT, ""), root=ROOT, ctx=ROOT, mn="", sp=(), tr=())
+        _eq(tr(ROOT, "foo"), root=ROOT, ctx=ROOT['foo'], mn="", sp=(), tr=('foo',))
+        _eq(tr(ROOT, "/notfound/"), root=ROOT, ctx=ROOT, mn="notfound", sp=(), tr=('notfound',))
+        _eq(tr(ROOT, "./foo"), root=ROOT, ctx=ROOT['foo'], mn="", sp=(), tr=('foo',))
+        _eq(tr(ROOT, "/foo"), root=ROOT, ctx=ROOT['foo'], mn="", sp=(), tr=('foo',))
+        _eq(tr(ROOT, "/foo/bar"), root=ROOT, ctx=ROOT['foo']['bar'], mn="", sp=(), tr=('foo', 'bar'))
+        _eq(tr(ROOT, "/foo/bar/baz"), root=ROOT, ctx=ROOT['foo']['bar'], mn="baz", sp=(), tr=('foo', 'bar', 'baz'))
+        _eq(tr(ROOT, "/foo/bar/baz/subpath/1/2"), root=ROOT, ctx=ROOT['foo']['bar'], mn="baz", sp=('subpath', '1', '2'), tr=('foo', 'bar', 'baz'))
+        _eq(tr(ROOT, "/@@foo/bar/baz/"), root=ROOT, ctx=ROOT, mn="foo", sp=('bar', 'baz'), tr=('@@foo',))
+        _eq(tr(ROOT, "/foo/@@bar/baz/"), root=ROOT, ctx=ROOT['foo'], mn="bar", sp=('baz',), tr=('foo', '@@bar'))
+        _eq(tr(ROOT, "/foo/bar/@@baz/subpath/1/2"), root=ROOT, ctx=ROOT['foo']['bar'], mn="baz", sp=('subpath', '1', '2'), tr=('foo', 'bar', '@@baz'))
+        _eq(tr(ROOT, "/foo/bar/baz/@@subpath/1/2"), root=ROOT, ctx=ROOT['foo']['bar'], mn="baz", sp=('@@subpath', '1', '2'), tr=('foo', 'bar', 'baz'))
+        _eq(tr(ROOT, "/foo/qux/"), root=ROOT, ctx=ROOT['foo']['qux'], mn="", sp=(), tr=('foo', 'qux'))
+        _eq(tr(ROOT, "/foo/qux/quxx"), root=ROOT, ctx=ROOT['foo']['qux']['quxx'], mn="", sp=(), tr=('foo', 'qux', 'quxx'))
+        _eq(tr(ROOT, "/foo/qux/quxx/quxxx"), root=ROOT, ctx=ROOT['foo']['qux']['quxx'], mn="quxxx", sp=(), tr=('foo', 'qux', 'quxx', 'quxxx'))
+        _eq(tr(ROOT, "/foo/qux/quxx/quxxx/sub"), root=ROOT, ctx=ROOT['foo']['qux']['quxx'], mn="quxxx", sp=('sub',), tr=('foo', 'qux', 'quxx', 'quxxx'))
+        _eq(tr(ROOT['foo'], "/foo"), root=ROOT['foo'], ctx=ROOT['foo'], mn="foo", sp=(), tr=('foo',))
 
     def test_get_response_or_404_model(self):
         from django_zodb import views
@@ -102,7 +101,7 @@ class ViewsTests(TestCase):
         views.registry.register(model=FakeContainer, view=_ContainerView())
 
         response = views.get_response_or_404("request", ROOT, "/foo/bar/baz/subpath/1")
-        self.eq(response, "baz response: 'request' subpath: u'subpath/1'")
+        self.eq(response, "baz response: 'request' subpath: 'subpath/1'")
 
     def test_fail_get_response_or_404_view_not_found(self):
         from django_zodb import views
@@ -125,22 +124,22 @@ class ViewsTests(TestCase):
         from django_zodb import views
 
         t = views.TraverseResult(root="root")
-        self.assertEquals(t.root, "root")
-        self.assertEquals(t.method_name, u"")
+        self.assertEqual(t.root, "root")
+        self.assertEqual(t.method_name, "")
 
         t['bla'] = 'ble'
-        self.assertEquals(t.bla, 'ble')
-        self.assertEquals(t['bla'], 'ble')
+        self.assertEqual(t.bla, 'ble')
+        self.assertEqual(t['bla'], 'ble')
 
         t.foo = "bar"
-        self.assertEquals(t.foo, 'bar')
-        self.assertEquals(t['foo'], 'bar')
+        self.assertEqual(t.foo, 'bar')
+        self.assertEqual(t['foo'], 'bar')
 
-        self.assertEquals(sorted(t.items()), [
+        self.assertEqual(sorted(t.items()), [
             ('bla', 'ble'),
             ('context', None),
             ('foo', 'bar'),
-            ('method_name', u''),
+            ('method_name', ''),
             ('root', 'root'),
             ('subpath', ()),
             ('traversed', ())

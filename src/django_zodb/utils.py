@@ -8,7 +8,7 @@
 
 
 import re
-from urlparse import parse_qs
+from urllib.parse import parse_qs
 
 # http://stackoverflow.com/questions/1175208/
 FIRST_CAP_RE = re.compile('(.)([A-Z][a-z]+)')
@@ -21,6 +21,7 @@ def camel_case_to_underline(name):
 
 
 def parse_uri(uri):
+
     def _push(ret, key, buf, next_key=None):
         if not buf:
             return next_key or key, []

@@ -18,7 +18,7 @@ from django_zodb import models
 from samples.wiki.models import Wiki, Page
 from samples.wiki.forms import PageEditForm
 
-wikiwords = re.compile(ur"\b([A-Z]\w+([A-Z]+\w+)+)")
+wikiwords = re.compile(r"\b([A-Z]\w+([A-Z]+\w+)+)")
 
 
 class WikiView(views.View):
